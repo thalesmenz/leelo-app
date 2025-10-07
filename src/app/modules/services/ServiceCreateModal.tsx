@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Modal } from '../../components/Modal';
+import { Modal, CurrencyInput } from '../../components';
 import { Plus, FloppyDisk } from 'phosphor-react';
 import { createServiceSchema, CreateServiceFormData } from '../../schemas/service';
 
@@ -27,13 +27,30 @@ export default function ServiceCreateModal({ isOpen, onClose, onSave }: ServiceC
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
 
+  // Parse currency value to number
+  const parseCurrency = (value: string) => {
+    if (!value) return 0;
+    
+    // Convert raw numeric string to number (divide by 100 to get actual value)
+    const number = parseInt(value) / 100;
+    
+    return number || 0;
+  };
+
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
     const { name, value } = e.target;
     setForm(f => ({ ...f, [name]: value }));
     
-    // Clear error when user starts typing
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
+    }
+  }
+
+  function handlePriceChange(value: string) {
+    setForm(f => ({ ...f, price: value }));
+    
+    if (errors.price) {
+      setErrors(prev => ({ ...prev, price: '' }));
     }
   }
 
@@ -43,12 +60,11 @@ export default function ServiceCreateModal({ isOpen, onClose, onSave }: ServiceC
     setErrors({});
 
     try {
-      // Validate form data
       const validatedData = createServiceSchema.parse({
         ...form,
         duration: Number(form.duration),
-        price: Number(form.price),
-        user_id: 'temp', // Will be set by parent component
+        price: parseCurrency(form.price), // Convert raw value to number
+        user_id: 'temp',
         active: true
       });
 
@@ -56,7 +72,6 @@ export default function ServiceCreateModal({ isOpen, onClose, onSave }: ServiceC
         await onSave(validatedData);
       }
       
-      // Reset form
       setForm({
         name: '',
         description: '',
@@ -66,7 +81,6 @@ export default function ServiceCreateModal({ isOpen, onClose, onSave }: ServiceC
       onClose();
     } catch (error: any) {
       if (error.errors) {
-        // Zod validation errors
         const newErrors: Record<string, string> = {};
         error.errors.forEach((err: any) => {
           newErrors[err.path[0]] = err.message;
@@ -154,20 +168,14 @@ export default function ServiceCreateModal({ isOpen, onClose, onSave }: ServiceC
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Preço (R$) *
-          </label>
-          <input
+          <CurrencyInput
             name="price"
-            type="number"
-            min="0"
-            step="0.01"
-            className={`w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-200 ${
-              errors.price ? 'border-red-300' : 'border-gray-300'
-            }`}
-            placeholder="0,00"
+            label="Preço"
+            required
             value={form.price}
-            onChange={handleChange}
+            onChange={handlePriceChange}
+            error={!!errors.price}
+            placeholder="R$ 0,00"
           />
           {errors.price && (
             <p className="mt-1 text-sm text-red-600">{errors.price}</p>
@@ -195,4 +203,4 @@ export default function ServiceCreateModal({ isOpen, onClose, onSave }: ServiceC
       </form>
     </Modal>
   );
-} 
+}

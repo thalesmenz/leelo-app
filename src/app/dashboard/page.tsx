@@ -9,6 +9,7 @@ import { patientService } from '../services/patientService';
 import { ArrowUpRight, ArrowDownRight, CalendarBlank, UserPlus, Plus, Users, Calendar, FileText, ArrowRight, Sparkle, CheckCircle } from 'phosphor-react';
 import Link from 'next/link';
 import { useAuth } from '../hooks/useAuth';
+import { useRouter } from 'next/navigation';
 
 function CustomTooltip({ active, payload, label }: any) {
   if (active && payload && payload.length) {
@@ -29,12 +30,17 @@ function CustomTooltip({ active, payload, label }: any) {
 
 export default function DashboardPage() {
   const { user, userId } = useAuth();
+  const router = useRouter();
   const [todaySchedule, setTodaySchedule] = useState<any[]>([]);
   const [financialStats, setFinancialStats] = useState<any>(null);
   const [patientStats, setPatientStats] = useState<any>(null);
   const [financialData, setFinancialData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isNewUser, setIsNewUser] = useState(false);
+
+  const handleViewFullAgenda = () => {
+    router.push('/dashboard/agenda');
+  };
 
   useEffect(() => {
     async function fetchDashboardData() {
@@ -111,7 +117,7 @@ export default function DashboardPage() {
       description: 'Agende sua primeira consulta',
       icon: Calendar,
       color: 'from-purple-500 to-purple-600',
-      href: '/dashboard/appointments',
+      href: '/dashboard/agenda',
       completed: false
     }
   ];
@@ -265,7 +271,12 @@ export default function DashboardPage() {
         <section className="lg:col-span-2 bg-white rounded shadow p-6 flex flex-col">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-xl font-bold">Agenda de Hoje</h3>
-            <button className="border border-gray-300 rounded px-3 py-1 text-sm font-medium hover:bg-gray-100">Ver Agenda Completa</button>
+            <button 
+              onClick={handleViewFullAgenda}
+              className="border border-gray-300 rounded px-3 py-1 text-sm font-medium hover:bg-gray-100 transition-colors"
+            >
+              Ver Agenda Completa
+            </button>
           </div>
           <ul className="space-y-3">
             {loading ? (

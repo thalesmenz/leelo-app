@@ -1,6 +1,7 @@
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Modal } from '@/app/components/Modal';
+import { Modal, CurrencyInput } from '@/app/components';
 import { Plus, FloppyDisk } from 'phosphor-react';
 import { transactionSchema, type TransactionFormData } from '@/app/schemas/transaction';
 import { transactionService } from '@/app/services/transactionService';
@@ -13,10 +14,13 @@ interface CreateTransactionModalProps {
 }
 
 export default function CreateTransactionModal({ isOpen, onClose, onSuccess }: CreateTransactionModalProps) {
+  const [amountValue, setAmountValue] = useState('');
+  
   const {
     register,
     handleSubmit,
     reset,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<TransactionFormData>({
     resolver: zodResolver(transactionSchema),
@@ -29,6 +33,18 @@ export default function CreateTransactionModal({ isOpen, onClose, onSuccess }: C
     },
   });
 
+  // Função para converter valor do CurrencyInput para número
+  const parseCurrency = (value: string) => {
+    if (!value) return 0;
+    const number = parseInt(value) / 100;
+    return number || 0;
+  };
+
+  const handleAmountChange = (value: string) => {
+    setAmountValue(value);
+    setValue('amount', parseCurrency(value));
+  };
+
   async function onSubmit(data: TransactionFormData) {
     try {
       const userId = localStorage.getItem('userId');
@@ -40,12 +56,13 @@ export default function CreateTransactionModal({ isOpen, onClose, onSuccess }: C
       await transactionService.create({
         ...data,
         user_id: userId,
-        amount: parseFloat(data.amount.toString())
+        amount: parseCurrency(amountValue)
       });
 
       showToast.success('Transação criada com sucesso!');
       onClose();
       reset();
+      setAmountValue('');
       if (onSuccess) onSuccess();
     } catch (error: any) {
       showToast.error(error.message || 'Erro ao criar transação');
@@ -70,14 +87,14 @@ export default function CreateTransactionModal({ isOpen, onClose, onSuccess }: C
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Valor (R$) *</label>
-          <input
-            {...register('amount', { valueAsNumber: true })}
-            type="number"
-            min="0.01"
-            step="0.01"
-            className={`w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-200 ${errors.amount ? 'border-red-300' : 'border-gray-300'}`}
-            placeholder="0,00"
+          <CurrencyInput
+            name="amount"
+            label="Valor"
+            required
+            value={amountValue}
+            onChange={handleAmountChange}
+            error={!!errors.amount}
+            placeholder="R$ 0,00"
           />
           {errors.amount && <p className="mt-1 text-sm text-red-600">{errors.amount.message}</p>}
         </div>

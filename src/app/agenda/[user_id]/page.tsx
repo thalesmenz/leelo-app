@@ -419,10 +419,16 @@ export default function PublicAgendaPage({ params }: { params: Promise<{ user_id
                 <label className="block text-sm font-bold text-gray-700 mb-2">CPF</label>
                 <input
                   type="text"
-                  value={patientData.cpf}
-                  onChange={(e) => setPatientData({...patientData, cpf: e.target.value})}
+                  value={patientData.cpf.replace(/\D/g, '').replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d{1,2})$/, '$1-$2').slice(0, 14)}
+                  onChange={(e) => {
+                    const unmaskedValue = e.target.value.replace(/\D/g, '');
+                    if (unmaskedValue.length <= 11) {
+                      setPatientData({...patientData, cpf: unmaskedValue});
+                    }
+                  }}
                   className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition-all duration-200"
                   placeholder="000.000.000-00"
+                  maxLength={14}
                 />
               </div>
             </div>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Calendar, Plus, CaretLeft, CaretRight, Clock, MapPin, User, Funnel, Gear } from 'phosphor-react';
+import { Calendar, Plus, CaretLeft, CaretRight, Clock, MapPin, User, Gear } from 'phosphor-react';
 import WorkScheduleConfigModal from '../../modules/work-schedule/WorkScheduleConfigModal';
 import { appointmentService } from '../../services/appointmentService';
 import AppointmentCreateModal from '../../modules/appointments/AppointmentCreateModal';
@@ -9,6 +9,7 @@ import { userServiceService } from '../../services/userServiceService';
 import { AppointmentConfirmDeleteModal } from '../../modules/appointments/AppointmentConfirmDeleteModal';
 import { showToast } from '../../utils/toast';
 import { ShareAgendaCard } from '../../components';
+import { useAuth } from '../../hooks/useAuth';
 
 
 interface Event {
@@ -24,6 +25,7 @@ interface Event {
 }
 
 export default function AgendaPage() {
+  const { user, userId } = useAuth();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [events, setEvents] = useState<Event[]>([]);
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
@@ -37,7 +39,6 @@ export default function AgendaPage() {
   // Buscar agendamentos reais do backend
   useEffect(() => {
     async function fetchAppointments() {
-      const userId = localStorage.getItem('userId');
       if (!userId) return;
       try {
         const res = await appointmentService.getByUserId(userId);
@@ -59,12 +60,11 @@ export default function AgendaPage() {
       }
     }
     fetchAppointments();
-  }, [currentDate]);
+  }, [currentDate, userId]);
 
   // Buscar serviços ativos do usuário logado
   useEffect(() => {
     async function fetchServices() {
-      const userId = localStorage.getItem('userId');
       if (!userId) return;
       try {
         const res = await userServiceService.getByUserId(userId);
@@ -74,7 +74,8 @@ export default function AgendaPage() {
       }
     }
     fetchServices();
-  }, []);
+  }, [userId]);
+
 
   const getDaysInMonth = (date: Date) => {
     const year = date.getFullYear();
@@ -82,7 +83,8 @@ export default function AgendaPage() {
     const firstDay = new Date(year, month, 1);
     const lastDay = new Date(year, month + 1, 0);
     const daysInMonth = lastDay.getDate();
-    const startingDayOfWeek = firstDay.getDay();
+    // Ajustar para começar com segunda-feira (1) em vez de domingo (0)
+    const startingDayOfWeek = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1;
     const days = [];
     for (let i = 0; i < startingDayOfWeek; i++) {
       days.push(null);
@@ -141,7 +143,6 @@ export default function AgendaPage() {
       }
       
       // Atualizar lista de eventos após mudança de status
-      const userId = localStorage.getItem('userId');
       if (!userId) return;
       const res = await appointmentService.getByUserId(userId);
       const mapped = (res.data || []).map((appt: any) => ({
@@ -174,9 +175,6 @@ export default function AgendaPage() {
             <span className="text-gray-500 text-sm">Gerencie seus agendamentos e horários</span>
           </div>
           <div className="flex gap-2">
-            <button className="border border-gray-300 rounded px-4 py-2 text-sm font-medium flex items-center gap-2 hover:bg-gray-100">
-              <Funnel size={18} /> Filtrar
-            </button>
             <button className="border border-gray-300 rounded px-4 py-2 text-sm font-medium flex items-center gap-2 hover:bg-gray-100" onClick={() => setShowWorkScheduleModal(true)}>
               <Gear size={18} /> Configurar Horários
             </button>
@@ -212,7 +210,7 @@ export default function AgendaPage() {
               {/* Aqui pode ir um calendário real, por enquanto placeholder */}
               <div className="flex flex-col items-center">
                 <div className="grid grid-cols-7 gap-1 text-xs text-gray-500 mb-2">
-                  {['Su','Mo','Tu','We','Th','Fr','Sa'].map(d => <div key={d} className="text-center py-1">{d}</div>)}
+                  {['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'].map(d => <div key={d} className="text-center py-1">{d}</div>)}
                   </div>
                 {/* Exemplo de dias */}
               <div className="grid grid-cols-7 gap-1">
@@ -360,7 +358,7 @@ export default function AgendaPage() {
         {/* Card de Compartilhamento da Agenda Pública */}
         <div className="mt-8">
           <ShareAgendaCard 
-            userId={localStorage.getItem('userId') || ''} 
+            userId={userId || ''} 
             variant="compact"
           />
         </div>

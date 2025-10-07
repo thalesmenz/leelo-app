@@ -134,50 +134,76 @@ export default function ServicesPage() {
             </div>
           ) : (
             services.map((service, index) => (
-              <div key={service.id} className="bg-white rounded-xl border border-gray-200 shadow p-6 flex flex-col gap-3 hover:shadow-lg transition-shadow relative">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="font-bold text-lg text-gray-900">{service.name}</span>
-                  <div className="flex items-center gap-2">
-                    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${service.active ? 'bg-green-100 text-green-800' : 'bg-gray-200 text-gray-700'}`}>
-                      {service.active ? 'Ativo' : 'Inativo'}
-                    </span>
-                    <div className="relative">
-                      <button
-                        onClick={() => setOpenMenuIdx(openMenuIdx === index ? null : index)}
-                        className="p-1 hover:bg-gray-100 rounded"
-                      >
-                        <DotsThree size={20} />
-                      </button>
-                      {openMenuIdx === index && (
-                        <div
-                          id={`menu-${index}`}
-                          className="absolute right-0 top-8 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-10 min-w-[120px]"
+              <div key={service.id} className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden group">
+                {/* Header com status */}
+                <div className="p-6 pb-4">
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex-1">
+                      <h3 className="font-bold text-xl text-gray-900 mb-2 line-clamp-2">
+                        {service.name}
+                      </h3>
+                      <p className="text-gray-600 text-sm leading-relaxed line-clamp-2">
+                        {service.description || 'Sem descrição'}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2 ml-4">
+                      <span className={`px-3 py-1.5 rounded-full text-xs font-semibold ${
+                        service.active 
+                          ? 'bg-green-100 text-green-800 border border-green-200' 
+                          : 'bg-gray-100 text-gray-600 border border-gray-200'
+                      }`}>
+                        {service.active ? 'Ativo' : 'Inativo'}
+                      </span>
+                      <div className="relative">
+                        <button
+                          onClick={() => setOpenMenuIdx(openMenuIdx === index ? null : index)}
+                          className="p-2 hover:bg-gray-100 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
                         >
-                          <button
-                            onClick={() => handleToggleStatus(service)}
-                            className="w-full text-left px-3 py-2 text-sm hover:bg-gray-50"
+                          <DotsThree size={18} className="text-gray-500" />
+                        </button>
+                        {openMenuIdx === index && (
+                          <div
+                            id={`menu-${index}`}
+                            className="absolute right-0 top-10 bg-white border border-gray-200 rounded-xl shadow-lg py-2 z-10 min-w-[140px]"
                           >
-                            {service.active ? 'Desativar' : 'Ativar'}
-                          </button>
-                          <button
-                            onClick={() => handleDeleteService(service)}
-                            className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-gray-50"
-                          >
-                            Excluir
-                          </button>
-                        </div>
-                      )}
+                            <button
+                              onClick={() => handleToggleStatus(service)}
+                              className="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 transition-colors"
+                            >
+                              {service.active ? 'Desativar' : 'Ativar'}
+                            </button>
+                            <button
+                              onClick={() => handleDeleteService(service)}
+                              className="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                            >
+                              Excluir
+                            </button>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
-                <div className="text-gray-500 text-sm mb-2">{service.description || 'Sem descrição'}</div>
-                <div className="flex items-center gap-4 mb-2">
-                  <span className="flex items-center gap-1 text-gray-500 text-sm">
-                    <Clock size={16} /> {service.duration} min
-                  </span>
-                  <span className="flex items-center gap-1 text-green-700 font-bold text-base">
-                    <CurrencyDollar size={16} /> R$ {service.price.toFixed(2).replace('.', ',')}
-                  </span>
+
+                {/* Footer com informações */}
+                <div className="px-6 py-4 bg-gray-50 border-t border-gray-100">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1 text-gray-600 text-sm">
+                      <Clock size={16} className="text-gray-400" />
+                      <span className="font-medium">{service.duration} min</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <CurrencyDollar size={16} className="text-green-600" />
+                      <span className="text-green-700 font-bold text-lg">
+                        {new Intl.NumberFormat('pt-BR', {
+                          style: 'currency',
+                          currency: 'BRL',
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        }).format(service.price)}
+                      </span>
+                    </div>
+                  </div>
                 </div>
               </div>
             ))

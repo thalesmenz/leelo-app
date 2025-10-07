@@ -1,6 +1,6 @@
 'use client';
 
-import { House, Calendar, Users, CurrencyDollar, FileText, Gear, ClipboardText, UserPlus, Heart } from 'phosphor-react';
+import { House, Calendar, Users, CurrencyDollar, Gear, ClipboardText, UserPlus } from 'phosphor-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '../hooks/useAuth';
@@ -39,9 +39,6 @@ export default function SidebarMenu() {
         {!isSubuser && (
           <SidebarLink href="/dashboard/subusers" icon={<UserPlus size={24} />} active={pathname === '/dashboard/subusers'}>Fisioterapeutas</SidebarLink>
         )}
-        
-        <SidebarLink href="#" icon={<FileText size={24} />} active={false}>Relatórios</SidebarLink>
-        <SidebarLink href="#" icon={<Gear size={24} />} active={false}>Configurações</SidebarLink>
       </nav>
     </aside>
   );

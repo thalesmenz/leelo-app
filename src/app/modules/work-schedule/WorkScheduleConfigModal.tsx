@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Modal } from '../../components/Modal';
 import { workScheduleService } from '../../services/workScheduleService';
+import { useAuth } from '../../hooks/useAuth';
 
 interface WorkScheduleConfigModalProps {
   isOpen: boolean;
@@ -36,19 +37,66 @@ const defaultDayConfig: DayConfig = {
 };
 
 export default function WorkScheduleConfigModal({ isOpen, onClose }: WorkScheduleConfigModalProps) {
+  const { userId } = useAuth();
   const [days, setDays] = useState<DayConfig[]>(
     weekDays.map(() => ({ ...defaultDayConfig }))
   );
   const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(false);
+
+  // Carregar dados existentes quando o modal abrir
+  useEffect(() => {
+    if (isOpen && userId) {
+      loadExistingData();
+    }
+  }, [isOpen, userId]);
+
+  const loadExistingData = async () => {
+    setInitialLoading(true);
+    try {
+      const response = await workScheduleService.getAll(userId);
+      if (response.success && response.data) {
+        const existingSchedules = response.data;
+        const dayNames = ['domingo', 'segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado'];
+        
+        // Mapear os dados existentes para o formato do estado
+        const mappedDays = dayNames.map((dayName, idx) => {
+          const existingDay = existingSchedules.find((s: any) => s.day_of_week === dayName);
+          
+          if (existingDay) {
+            return {
+              active: existingDay.is_active || false,
+              start: existingDay.start_time || '08:00',
+              end: existingDay.end_time || '18:00',
+              hasLunch: existingDay.has_lunch_break || false,
+              lunchStart: existingDay.lunch_start_time || '12:00',
+              lunchEnd: existingDay.lunch_end_time || '13:00',
+            };
+          }
+          
+          // Se não existe configuração para este dia, usar padrão
+          return { ...defaultDayConfig };
+        });
+        
+        setDays(mappedDays);
+      }
+    } catch (error) {
+      console.error('Erro ao carregar configurações existentes:', error);
+      // Em caso de erro, mantém os valores padrão
+    } finally {
+      setInitialLoading(false);
+    }
+  };
 
   const handleChange = (idx: number, field: keyof DayConfig, value: any) => {
     setDays(prev => prev.map((d, i) => i === idx ? { ...d, [field]: value } : d));
   };
 
   const handleSave = async () => {
+    if (!userId) return;
+    
     setLoading(true);
     try {
-      const userId = typeof window !== 'undefined' ? localStorage.getItem('userId') || '' : '';
       const dayNames = ['domingo', 'segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado'];
       await workScheduleService.upsertMany(userId, days.map((d, idx) => ({
         is_active: d.active,
@@ -74,7 +122,14 @@ export default function WorkScheduleConfigModal({ isOpen, onClose }: WorkSchedul
       <div className="mb-2 text-gray-600 text-sm">
         Configure horários, pausas e status individual para cada dia da semana
       </div>
-      <div className="bg-white rounded-lg p-4">
+      
+      {initialLoading ? (
+        <div className="flex items-center justify-center py-12">
+          <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+          <span className="ml-3 text-gray-600">Carregando configurações...</span>
+        </div>
+      ) : (
+        <div className="bg-white rounded-lg p-4">
         {weekDays.map((day, idx) => (
           <div key={day} className="mb-4 border border-gray-200 rounded-lg p-4 bg-gray-50">
             <div className="flex items-center justify-between mb-2">
@@ -152,7 +207,8 @@ export default function WorkScheduleConfigModal({ isOpen, onClose }: WorkSchedul
             {loading ? 'Salvando...' : 'Salvar Configuração'}
           </button>
         </div>
-      </div>
+        </div>
+      )}
     </Modal>
   );
 } 

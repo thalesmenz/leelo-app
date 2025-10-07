@@ -17,19 +17,14 @@ export default function DashboardLayout({
 
   const handleLogout = async () => {
     await logout();
+    router.push('/login');
   };
 
   const handleLogoutAllDevices = async () => {
     await logoutAllDevices();
+    router.push('/login');
   };
 
-  const handleNewAppointment = () => {
-    router.push('/dashboard/agenda');
-  };
-
-  const handleAddPatient = () => {
-    router.push('/dashboard/patients');
-  };
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
@@ -44,20 +39,6 @@ export default function DashboardLayout({
             </span>
           </div>
           <div className="flex items-center gap-4">
-            <button 
-              onClick={handleNewAppointment}
-              className="bg-gradient-to-r from-green-400 to-blue-400 hover:from-blue-400 hover:to-green-400 text-white px-4 py-2 rounded font-semibold shadow transition-colors"
-            >
-              Novo Agendamento
-            </button>
-            <button 
-              onClick={handleAddPatient}
-              className="bg-white border border-gray-300 hover:bg-gray-100 text-gray-800 px-4 py-2 rounded font-semibold"
-            >
-              Adicionar Paciente
-            </button>
-          
-            
             {/* Menu do usuário */}
             <div className="relative">
               <button 

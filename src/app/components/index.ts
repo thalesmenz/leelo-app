@@ -4,6 +4,7 @@ export { PhoneInput } from './PhoneInput';
 export { CpfInput } from './CpfInput';
 export { DateInput } from './DateInput';
 export { MaskedInput } from './MaskedInput';
+export { default as CurrencyInput } from './CurrencyInput';
 export { Modal } from './Modal';
 export { default as SummaryCard } from './SummaryCard';
 export { default as ShareAgendaCard } from './ShareAgendaCard';

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Calendar, Copy, Check, Share, Users } from 'phosphor-react';
 
 interface ShareAgendaCardProps {
@@ -11,28 +11,39 @@ interface ShareAgendaCardProps {
 
 export default function ShareAgendaCard({ userId, className = '', variant = 'full' }: ShareAgendaCardProps) {
   const [copied, setCopied] = useState(false);
+  const [agendaUrl, setAgendaUrl] = useState('');
   
-  const agendaUrl = `${window.location.origin}/agenda/${userId}`;
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setAgendaUrl(`${window.location.origin}/agenda/${userId}`);
+    }
+  }, [userId]);
   
   const handleCopyLink = async () => {
+    if (typeof window === 'undefined' || !agendaUrl) return;
+    
     try {
-      await navigator.clipboard.writeText(agendaUrl);
+      if (navigator.clipboard) {
+        await navigator.clipboard.writeText(agendaUrl);
+      } else {
+        // Fallback para navegadores antigos
+        const textArea = document.createElement('textarea');
+        textArea.value = agendaUrl;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+      }
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (error) {
-      // Fallback para navegadores antigos
-      const textArea = document.createElement('textarea');
-      textArea.value = agendaUrl;
-      document.body.appendChild(textArea);
-      textArea.select();
-      document.execCommand('copy');
-      document.body.removeChild(textArea);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      console.error('Erro ao copiar link:', error);
     }
   };
 
   const handleShare = async () => {
+    if (typeof window === 'undefined' || !agendaUrl) return;
+    
     if (navigator.share) {
       try {
         await navigator.share({
@@ -49,10 +60,24 @@ export default function ShareAgendaCard({ userId, className = '', variant = 'ful
   };
 
   const handleWhatsAppShare = () => {
+    if (typeof window === 'undefined' || !agendaUrl) return;
+    
     const message = `Olá! Agende sua consulta online através deste link: ${agendaUrl}`;
     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
   };
+
+  // Não renderiza até que o URL esteja disponível
+  if (!agendaUrl) {
+    return (
+      <div className={`bg-white border border-gray-200 rounded-xl p-4 ${className}`}>
+        <div className="flex items-center justify-center py-4">
+          <div className="w-6 h-6 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin"></div>
+          <span className="ml-2 text-sm text-gray-500">Carregando...</span>
+        </div>
+      </div>
+    );
+  }
 
   if (variant === 'compact') {
     return (
