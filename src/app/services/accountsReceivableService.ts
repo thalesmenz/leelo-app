@@ -1,11 +1,9 @@
-import axios from 'axios';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/';
+import api from '../config/axios';
 
 export const accountsReceivableService = {
   async create(data: any) {
     try {
-      const response = await axios.post(`${API_URL}accounts-receivable`, data);
+      const response = await api.post('accounts-receivable', data);
       return response.data;
     } catch (error) {
       console.error('Erro ao criar conta a receber:', error);
@@ -15,7 +13,7 @@ export const accountsReceivableService = {
 
   async getAll(userId: string, params?: any) {
     try {
-      const response = await axios.get(`${API_URL}accounts-receivable`, { 
+      const response = await api.get('accounts-receivable', { 
         params: { user_id: userId, ...params } 
       });
       return response.data;
@@ -27,7 +25,7 @@ export const accountsReceivableService = {
 
   async getById(id: string) {
     try {
-      const response = await axios.get(`${API_URL}accounts-receivable/${id}`);
+      const response = await api.get(`accounts-receivable/${id}`);
       return response.data;
     } catch (error) {
       console.error('Erro ao buscar conta a receber por ID:', error);
@@ -37,7 +35,7 @@ export const accountsReceivableService = {
 
   async updateById(id: string, data: any) {
     try {
-      const response = await axios.put(`${API_URL}accounts-receivable/${id}`, data);
+      const response = await api.put(`accounts-receivable/${id}`, data);
       return response.data;
     } catch (error) {
       console.error('Erro ao atualizar conta a receber:', error);
@@ -47,7 +45,7 @@ export const accountsReceivableService = {
 
   async deleteById(id: string) {
     try {
-      const response = await axios.delete(`${API_URL}accounts-receivable/${id}`);
+      const response = await api.delete(`accounts-receivable/${id}`);
       return response.data;
     } catch (error) {
       console.error('Erro ao deletar conta a receber:', error);
@@ -57,7 +55,7 @@ export const accountsReceivableService = {
 
   async markAsReceived(id: string, receive_date?: string) {
     try {
-      const response = await axios.patch(`${API_URL}accounts-receivable/${id}/receive`, { receive_date });
+      const response = await api.patch(`accounts-receivable/${id}/receive`, { receive_date });
       return response.data;
     } catch (error) {
       console.error('Erro ao marcar como recebido:', error);
@@ -67,7 +65,7 @@ export const accountsReceivableService = {
 
   async getStatistics(userId: string) {
     try {
-      const response = await axios.get(`${API_URL}accounts-receivable/user/${userId}/statistics`);
+      const response = await api.get(`accounts-receivable/user/${userId}/statistics`);
       return response.data;
     } catch (error) {
       console.error('Erro ao buscar estatísticas:', error);
@@ -79,7 +77,7 @@ export const accountsReceivableService = {
   async getByUserId(userId: string, filters?: any) {
     try {
       const params = { user_id: userId, ...filters };
-      const response = await axios.get(`${API_URL}accounts-receivable`, { params });
+      const response = await api.get('accounts-receivable', { params });
       return response.data;
     } catch (error) {
       console.error('Erro ao buscar contas a receber por usuário:', error);
@@ -89,7 +87,7 @@ export const accountsReceivableService = {
 
   async searchByName(userId: string, name: string) {
     try {
-      const response = await axios.get(`${API_URL}accounts-receivable/user/${userId}/search?name=${encodeURIComponent(name)}`);
+      const response = await api.get(`accounts-receivable/user/${userId}/search?name=${encodeURIComponent(name)}`);
       return response.data;
     } catch (error) {
       console.error('Erro ao buscar por nome:', error);

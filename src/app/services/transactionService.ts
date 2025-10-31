@@ -1,11 +1,9 @@
-import axios from 'axios';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/';
+import api from '../config/axios';
 
 export const transactionService = {
   async getAll(params: any) {
     try {
-      const { data } = await axios.get(`${API_URL}transactions`, { params });
+      const { data } = await api.get('transactions', { params });
       return data;
     } catch (error: any) {
       console.error('Erro no transactionService.getAll:', error);
@@ -14,7 +12,7 @@ export const transactionService = {
   },
   async getById(id: string) {
     try {
-      const { data } = await axios.get(`${API_URL}transactions/${id}`);
+      const { data } = await api.get(`transactions/${id}`);
       return data;
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Erro ao buscar transação');
@@ -22,7 +20,7 @@ export const transactionService = {
   },
   async create(payload: any) {
     try {
-      const { data } = await axios.post(`${API_URL}transactions`, payload);
+      const { data } = await api.post('transactions', payload);
       return data;
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Erro ao criar transação');
@@ -30,7 +28,7 @@ export const transactionService = {
   },
   async update(id: string, payload: any) {
     try {
-      const { data } = await axios.put(`${API_URL}transactions/${id}`, payload);
+      const { data } = await api.put(`transactions/${id}`, payload);
       return data;
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Erro ao atualizar transação');
@@ -38,15 +36,29 @@ export const transactionService = {
   },
   async remove(id: string) {
     try {
-      const { data } = await axios.delete(`${API_URL}transactions/${id}`);
+      const { data } = await api.delete(`transactions/${id}`);
       return data;
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Erro ao remover transação');
     }
   },
-  async getStatistics(userId: string) {
+  async getStatistics(userId: string, month?: number, year?: number) {
     try {
-      const response = await axios.get(`${API_URL}transactions/user/${userId}/statistics`);
+      let url = `transactions/user/${userId}/statistics`;
+      const params = new URLSearchParams();
+      
+      if (month) {
+        params.append('month', month.toString());
+      }
+      if (year) {
+        params.append('year', year.toString());
+      }
+      
+      if (params.toString()) {
+        url += `?${params.toString()}`;
+      }
+      
+      const response = await api.get(url);
       return response.data;
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Erro ao buscar estatísticas');
@@ -55,7 +67,7 @@ export const transactionService = {
 
   async getHistoricalData(userId: string, months: number = 6) {
     try {
-      const response = await axios.get(`${API_URL}transactions/user/${userId}/historical?months=${months}`);
+      const response = await api.get(`transactions/user/${userId}/historical?months=${months}`);
       return response.data;
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Erro ao buscar dados históricos');
@@ -64,7 +76,7 @@ export const transactionService = {
 
   async searchByDescription(userId: string, description: string) {
     try {
-      const response = await axios.get(`${API_URL}transactions/user/${userId}/search?description=${encodeURIComponent(description)}`);
+      const response = await api.get(`transactions/user/${userId}/search?description=${encodeURIComponent(description)}`);
       return response.data;
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Erro ao buscar transações');

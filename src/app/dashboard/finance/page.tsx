@@ -22,6 +22,21 @@ const tabs = [
   'Gráficos',
 ];
 
+const months = [
+  { value: 1, label: 'Janeiro' },
+  { value: 2, label: 'Fevereiro' },
+  { value: 3, label: 'Março' },
+  { value: 4, label: 'Abril' },
+  { value: 5, label: 'Maio' },
+  { value: 6, label: 'Junho' },
+  { value: 7, label: 'Julho' },
+  { value: 8, label: 'Agosto' },
+  { value: 9, label: 'Setembro' },
+  { value: 10, label: 'Outubro' },
+  { value: 11, label: 'Novembro' },
+  { value: 12, label: 'Dezembro' },
+];
+
 function FinancePageContent() {
   const [tab, setTab] = useState('Transações');
   const [refreshKey, setRefreshKey] = useState(0);
@@ -31,7 +46,9 @@ function FinancePageContent() {
     isConsolidatedView, 
     selectedUserFilter, 
     selectedSubuserId,
-    consolidatedData 
+    consolidatedData,
+    selectedMonth,
+    selectedYear
   } = useFinance();
 
   // Função para calcular estatísticas baseada na visão atual
@@ -55,22 +72,37 @@ function FinancePageContent() {
         const accountsReceivable = consolidatedData?.accounts_receivable || [];
         const accountsPayable = consolidatedData?.accounts_payable || [];
 
+        console.log('=== DADOS CONSOLIDADOS ===');
+        console.log('Total de transações nos dados consolidados:', transactions.length);
+        console.log('Filtro selecionado:', selectedUserFilter);
+        console.log('Subusuário selecionado:', selectedSubuserId);
+        console.log('==========================');
+
         // Filtrar por usuário se necessário
         let filteredTransactions = transactions;
         if (selectedUserFilter === 'main') {
           const userId = typeof window !== 'undefined' ? localStorage.getItem('userId') : null;
           filteredTransactions = transactions.filter((t: any) => t.user_id === userId);
+          console.log('Filtrando por usuário principal:', userId);
+          console.log('Transações após filtro:', filteredTransactions.length);
         } else if (selectedUserFilter === 'subuser' && selectedSubuserId) {
           filteredTransactions = transactions.filter((t: any) => t.user_id === selectedSubuserId);
+          console.log('Filtrando por subusuário:', selectedSubuserId);
+          console.log('Transações após filtro:', filteredTransactions.length);
+        } else {
+          console.log('Mostrando todas as transações (filtro: all)');
         }
 
-        // Calcular estatísticas do mês atual
+        // Calcular estatísticas do mês selecionado
+        const startOfMonth = new Date(selectedYear, selectedMonth - 1, 1);
+        const endOfMonth = new Date(selectedYear, selectedMonth, 0);
+        const startOfPrevMonth = new Date(selectedYear, selectedMonth - 2, 1);
+        const endOfPrevMonth = new Date(selectedYear, selectedMonth - 1, 0);
+        
+        // Usar timezone do Brasil (UTC-3) para calcular a data de hoje
         const now = new Date();
-        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-        const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-        const startOfPrevMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-        const endOfPrevMonth = new Date(now.getFullYear(), now.getMonth() - 1, 0);
-        const today = now.toISOString().split('T')[0];
+        const brazilTime = new Date(now.getTime() - (3 * 60 * 60 * 1000));
+        const today = brazilTime.toISOString().split('T')[0];
 
         // Transações do mês atual
         const monthTransactions = filteredTransactions.filter((t: any) => {
@@ -84,11 +116,19 @@ function FinancePageContent() {
           return transactionDate >= startOfPrevMonth && transactionDate <= endOfPrevMonth;
         });
 
-        // Transações de hoje
-        const todayTransactions = filteredTransactions.filter((t: any) => {
-          const transactionDate = new Date(t.date);
-          return transactionDate.toISOString().split('T')[0] === today;
-        });
+        // Verificar se está visualizando o mês atual
+        const currentMonth = now.getMonth() + 1;
+        const currentYear = now.getFullYear();
+        const isCurrentMonth = selectedMonth === currentMonth && selectedYear === currentYear;
+
+        // Transações de hoje (apenas se estiver no mês atual)
+        let todayTransactions: any[] = [];
+        if (isCurrentMonth) {
+          todayTransactions = filteredTransactions.filter((t: any) => {
+            const transactionDate = new Date(t.date);
+            return transactionDate.toISOString().split('T')[0] === today;
+          });
+        }
 
         // Cálculos mês atual
         const receitaMes = monthTransactions
@@ -112,13 +152,13 @@ function FinancePageContent() {
         
         const lucroMesAnterior = receitaMesAnterior - despesasMesAnterior;
 
-        // Receita de hoje
-        const receitaHoje = todayTransactions
+        // Receita de hoje (apenas se estiver no mês atual)
+        const receitaHoje = isCurrentMonth ? todayTransactions
           .filter((t: any) => t.type === 'entrada')
-          .reduce((acc: number, t: any) => acc + Number(t.amount), 0);
+          .reduce((acc: number, t: any) => acc + Number(t.amount), 0) : 0;
         
-        const atendimentosHoje = todayTransactions
-          .filter((t: any) => t.type === 'entrada').length;
+        const atendimentosHoje = isCurrentMonth ? todayTransactions
+          .filter((t: any) => t.type === 'entrada').length : 0;
 
         // Percentuais
         const receitaPercent = receitaMesAnterior ? ((receitaMes - receitaMesAnterior) / receitaMesAnterior) * 100 : null;
@@ -136,10 +176,9 @@ function FinancePageContent() {
           lucroPercent
         });
       } else {
-        // Visão individual - usar service normal
         const userId = typeof window !== 'undefined' ? localStorage.getItem('userId') : null;
         if (userId) {
-          const response = await transactionService.getStatistics(userId);
+          const response = await transactionService.getStatistics(userId, selectedMonth, selectedYear);
           setStats(response.data);
         }
       }
@@ -148,7 +187,7 @@ function FinancePageContent() {
       // Fallback para dados individuais
       const userId = typeof window !== 'undefined' ? localStorage.getItem('userId') : null;
       if (userId) {
-        const response = await transactionService.getStatistics(userId);
+        const response = await transactionService.getStatistics(userId, selectedMonth, selectedYear);
         setStats(response.data);
       }
     } finally {
@@ -159,7 +198,7 @@ function FinancePageContent() {
   // Recalcula estatísticas quando mudam os filtros
   useEffect(() => {
     calculateStats();
-  }, [isConsolidatedView, selectedUserFilter, selectedSubuserId, consolidatedData]);
+  }, [isConsolidatedView, selectedUserFilter, selectedSubuserId, consolidatedData, selectedMonth, selectedYear]);
 
   // Carrega estatísticas iniciais
   useEffect(() => {
@@ -167,12 +206,12 @@ function FinancePageContent() {
       const userId = typeof window !== 'undefined' ? localStorage.getItem('userId') : null;
       if (userId) {
         setLoadingStats(true);
-        transactionService.getStatistics(userId)
+        transactionService.getStatistics(userId, selectedMonth, selectedYear)
           .then(res => setStats(res.data))
           .finally(() => setLoadingStats(false));
       }
     }
-  }, []);
+  }, [selectedMonth, selectedYear]);
 
   const handleRefresh = () => {
     setRefreshKey(prev => prev + 1);
@@ -181,17 +220,17 @@ function FinancePageContent() {
   const renderTabContent = () => {
     switch (tab) {
       case 'Transações':
-        return <TransactionsTab />;
+        return <TransactionsTab onRefresh={calculateStats} />;
       // case 'Planos':
       //   return <PlansTab />;
       case 'Contas a Receber':
-        return <ReceivablesTab />;
+        return <ReceivablesTab onRefresh={calculateStats} />;
       case 'Contas a Pagar':
-        return <PayablesTab onRefresh={handleRefresh} />;
+        return <PayablesTab onRefresh={calculateStats} />;
       case 'Gráficos':
         return <ChartsTab key={refreshKey} />;
       default:
-        return <TransactionsTab />;
+        return <TransactionsTab onRefresh={calculateStats} />;
     }
   };
 
@@ -210,7 +249,7 @@ function FinancePageContent() {
         {/* Filtros de Visão Consolidada */}
         <FinanceFilters />
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className={`grid gap-6 mb-8 ${((new Date().getMonth() + 1 === selectedMonth && new Date().getFullYear() === selectedYear) || !stats) ? 'grid-cols-1 md:grid-cols-4' : 'grid-cols-1 md:grid-cols-3'}`}>
           {loadingStats || !stats ? (
             Array.from({ length: 4 }).map((_, idx) => (
               <div key={idx} className="bg-white rounded shadow p-5 h-28 animate-pulse" />
@@ -218,33 +257,36 @@ function FinancePageContent() {
           ) : (
             <>
               <SummaryCard
-                title="Receita do Mês"
+                title={`Receita de ${months[selectedMonth - 1]?.label || ''}/${selectedYear}`}
                 value={`R$ ${stats.receitaMes.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
                 variation={stats.receitaPercent !== null ? `${stats.receitaPercent >= 0 ? '+' : ''}${stats.receitaPercent.toFixed(1)}% em relação ao mês anterior` : ''}
                 icon={<ArrowUpRight size={20} className="text-green-500" />}
                 variationColor="text-green-600"
               />
               <SummaryCard
-                title="Despesas do Mês"
+                title={`Despesas de ${months[selectedMonth - 1]?.label || ''}/${selectedYear}`}
                 value={`R$ ${stats.despesasMes.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
                 variation={stats.despesasPercent !== null ? `${stats.despesasPercent >= 0 ? '+' : ''}${stats.despesasPercent.toFixed(1)}% em relação ao mês anterior` : ''}
                 icon={<ArrowDownRight size={20} className="text-red-500" />}
                 variationColor="text-red-600"
               />
               <SummaryCard
-                title="Lucro Líquido"
+                title={`Lucro Líquido - ${months[selectedMonth - 1]?.label || ''}/${selectedYear}`}
                 value={`R$ ${stats.lucroMes.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
                 variation={stats.lucroPercent !== null ? `${stats.lucroPercent >= 0 ? '+' : ''}${stats.lucroPercent.toFixed(1)}% em relação ao mês anterior` : ''}
                 icon={<CurrencyDollar size={20} className="text-blue-500" />}
                 variationColor="text-green-600"
               />
-            <SummaryCard
-                title="Receita de Hoje"
-                value={`R$ ${stats.receitaHoje.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
-                variation={`${stats.atendimentosHoje} atendimentos hoje`}
-                icon={<CalendarBlank size={20} className="text-purple-500" />}
-                variationColor="text-gray-500"
-              />
+              {/* Mostrar "Receita de Hoje" apenas se estiver no mês atual */}
+              {(new Date().getMonth() + 1 === selectedMonth && new Date().getFullYear() === selectedYear) && (
+                <SummaryCard
+                  title="Receita de Hoje"
+                  value={`R$ ${stats.receitaHoje.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
+                  variation={`${stats.atendimentosHoje} atendimentos hoje`}
+                  icon={<CalendarBlank size={20} className="text-purple-500" />}
+                  variationColor="text-gray-500"
+                />
+              )}
             </>
           )}
         </div>

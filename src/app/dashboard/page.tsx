@@ -285,7 +285,9 @@ export default function DashboardPage() {
               <li className="text-gray-500 text-center py-4">Nenhum agendamento para hoje.</li>
             ) : (
               todaySchedule.map((item, idx) => (
-                <li key={idx} className="flex items-center justify-between bg-gray-50 rounded p-3">
+                <li key={idx} className={`flex items-center justify-between rounded p-3 ${
+                  item.status === 'completed' ? 'bg-green-50 border border-green-200' : 'bg-gray-50'
+                }`}>
                   <div className="flex items-center gap-4">
                     <div className="text-lg font-bold text-gray-700 w-16">{item.time}</div>
                     <div className="text-xs text-gray-400">{item.duration}</div>
@@ -295,7 +297,15 @@ export default function DashboardPage() {
                       <div className="text-xs text-gray-400">{item.location}</div>
                     </div>
                   </div>
-                  <span className={`px-3 py-1 rounded-full text-xs font-semibold ${item.status === 'confirmed' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>{item.status === 'confirmed' ? 'Confirmado' : 'Pendente'}</span>
+                  <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                    item.status === 'confirmed' ? 'bg-green-100 text-green-700' : 
+                    item.status === 'completed' ? 'bg-blue-100 text-blue-700' : 
+                    'bg-yellow-100 text-yellow-700'
+                  }`}>
+                    {item.status === 'confirmed' ? 'Confirmado' : 
+                     item.status === 'completed' ? 'Concluído' : 
+                     'Pendente'}
+                  </span>
                 </li>
               ))
             )}

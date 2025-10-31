@@ -1,6 +1,4 @@
-import axios from 'axios';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/';
+import api from '../config/axios';
 
 export interface AccountsPayable {
   id: string;
@@ -56,7 +54,7 @@ export interface AccountsPayableStatistics {
 export const accountsPayableService = {
   async create(data: CreateAccountsPayableDTO) {
     try {
-      const response = await axios.post(`${API_URL}accounts-payable`, data);
+      const response = await api.post('accounts-payable', data);
       return response.data;
     } catch (error) {
       console.error('Erro ao criar conta a pagar:', error);
@@ -66,7 +64,7 @@ export const accountsPayableService = {
 
   async getAll(userId: string, params?: any) {
     try {
-      const response = await axios.get(`${API_URL}accounts-payable`, { 
+      const response = await api.get('accounts-payable', { 
         params: { user_id: userId, ...params } 
       });
       return response.data;
@@ -78,7 +76,7 @@ export const accountsPayableService = {
 
   async getById(id: string) {
     try {
-      const response = await axios.get(`${API_URL}accounts-payable/${id}`);
+      const response = await api.get(`accounts-payable/${id}`);
       return response.data;
     } catch (error) {
       console.error('Erro ao buscar conta a pagar por ID:', error);
@@ -88,7 +86,7 @@ export const accountsPayableService = {
 
   async updateById(id: string, data: UpdateAccountsPayableDTO) {
     try {
-      const response = await axios.put(`${API_URL}accounts-payable/${id}`, data);
+      const response = await api.put(`accounts-payable/${id}`, data);
       return response.data;
     } catch (error) {
       console.error('Erro ao atualizar conta a pagar:', error);
@@ -98,7 +96,7 @@ export const accountsPayableService = {
 
   async deleteById(id: string) {
     try {
-      const response = await axios.delete(`${API_URL}accounts-payable/${id}`);
+      const response = await api.delete(`accounts-payable/${id}`);
       return response.data;
     } catch (error) {
       console.error('Erro ao deletar conta a pagar:', error);
@@ -108,7 +106,7 @@ export const accountsPayableService = {
 
   async markAsPaid(id: string, payment_date?: string) {
     try {
-      const response = await axios.patch(`${API_URL}accounts-payable/${id}/pay`, { payment_date });
+      const response = await api.patch(`accounts-payable/${id}/pay`, { payment_date });
       return response.data;
     } catch (error) {
       console.error('Erro ao marcar como pago:', error);
@@ -118,7 +116,7 @@ export const accountsPayableService = {
 
   async getStatistics(userId: string) {
     try {
-      const response = await axios.get(`${API_URL}accounts-payable/user/${userId}/statistics`);
+      const response = await api.get(`accounts-payable/user/${userId}/statistics`);
       return response.data;
     } catch (error) {
       console.error('Erro ao buscar estatísticas:', error);
@@ -130,7 +128,7 @@ export const accountsPayableService = {
   async getByUserId(userId: string, filters?: any) {
     try {
       const params = { user_id: userId, ...filters };
-      const response = await axios.get(`${API_URL}accounts-payable`, { params });
+      const response = await api.get('accounts-payable', { params });
       return response.data;
     } catch (error) {
       console.error('Erro ao buscar contas a pagar por usuário:', error);
@@ -140,7 +138,7 @@ export const accountsPayableService = {
 
   async searchByName(userId: string, name: string) {
     try {
-      const response = await axios.get(`${API_URL}accounts-payable/user/${userId}/search?name=${encodeURIComponent(name)}`);
+      const response = await api.get(`accounts-payable/user/${userId}/search?name=${encodeURIComponent(name)}`);
       return response.data;
     } catch (error) {
       console.error('Erro ao buscar por nome:', error);

@@ -98,7 +98,7 @@ export function PatientCreateForm({ onSuccess, onCancel }: PatientCreateFormProp
         />
         <DateInput
           label="Data de Nascimento"
-          name="birth_date"
+          register={register('birth_date')}
           error={errors.birth_date}
           value={watch('birth_date')}
           setValue={val => setValue('birth_date', val)}

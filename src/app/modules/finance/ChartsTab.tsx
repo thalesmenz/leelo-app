@@ -197,12 +197,11 @@ export default function ChartsTab() {
           const payablePending = payableData.filter((p: any) => p.status === 'pendente').length;
           setPayableStats({ paid, pending: payablePending });
 
-          // Calcular evolução mensal para visão individual
           const monthlyData = calculateIndividualMonthlyEvolution(receivableData, payableData);
           setEvolutionData(monthlyData);
         }
       } else {
-        // Visão individual - buscar dados completos do usuário
+        //  - buscar dados completos do usuário
         try {
           const [receivableResponse, payableResponse] = await Promise.all([
             accountsReceivableService.getAll(userId),
@@ -221,7 +220,6 @@ export default function ChartsTab() {
           const payablePending = payableData.filter((p: any) => p.status === 'pendente').length;
           setPayableStats({ paid, pending: payablePending });
 
-          // Calcular evolução mensal para visão individual
           const monthlyData = calculateIndividualMonthlyEvolution(receivableData, payableData);
           setEvolutionData(monthlyData);
         } catch (error) {

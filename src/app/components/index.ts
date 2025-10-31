@@ -9,3 +9,4 @@ export { Modal } from './Modal';
 export { default as SummaryCard } from './SummaryCard';
 export { default as ShareAgendaCard } from './ShareAgendaCard';
 export { default as ProtectedRoute } from './ProtectedRoute';
+export { default as DesktopOnly } from './DesktopOnly';

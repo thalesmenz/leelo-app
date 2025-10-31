@@ -1,6 +1,4 @@
-import axios from 'axios';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/';
+import api from '../config/axios';
 
 export interface MedicalRecord {
   id: string;
@@ -26,49 +24,49 @@ export interface UpdateMedicalRecordDTO {
 
 export const medicalRecordService = {
   async create(data: CreateMedicalRecordDTO) {
-    const response = await axios.post(`${API_URL}medical-records`, data);
+    const response = await api.post('medical-records', data);
     return response.data;
   },
 
   async getAll() {
-    const response = await axios.get(`${API_URL}medical-records`);
+    const response = await api.get('medical-records');
     return response.data;
   },
 
   async getById(id: string) {
-    const response = await axios.get(`${API_URL}medical-records/${id}`);
+    const response = await api.get(`medical-records/${id}`);
     return response.data;
   },
 
   async getByProfessionalId(professionalId: string) {
-    const response = await axios.get(`${API_URL}medical-records/professional/${professionalId}`);
+    const response = await api.get(`medical-records/professional/${professionalId}`);
     return response.data;
   },
 
   async getByPatientId(patientId: string) {
-    const response = await axios.get(`${API_URL}medical-records/patient/${patientId}`);
+    const response = await api.get(`medical-records/patient/${patientId}`);
     return response.data;
   },
 
   async update(id: string, data: UpdateMedicalRecordDTO) {
-    const response = await axios.put(`${API_URL}medical-records/${id}`, data);
+    const response = await api.put(`medical-records/${id}`, data);
     return response.data;
   },
 
   async delete(id: string) {
-    const response = await axios.delete(`${API_URL}medical-records/${id}`);
+    const response = await api.delete(`medical-records/${id}`);
     return response.data;
   },
 
   async search(professionalId: string, searchTerm: string) {
-    const response = await axios.get(`${API_URL}medical-records/search`, {
+    const response = await api.get('medical-records/search', {
       params: { professionalId, searchTerm }
     });
     return response.data;
   },
 
   async getStatistics(professionalId: string) {
-    const response = await axios.get(`${API_URL}medical-records/statistics/${professionalId}`);
+    const response = await api.get(`medical-records/statistics/${professionalId}`);
     return response.data;
   },
 };

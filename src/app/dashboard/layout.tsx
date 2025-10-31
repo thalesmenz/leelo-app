@@ -1,7 +1,7 @@
 'use client';
 
 import SidebarMenu from './SidebarMenu';
-import { Users, Bell, SignOut, User } from 'phosphor-react';
+import { Users, Bell, SignOut, User, List } from 'phosphor-react';
 import { useAuth } from '../hooks/useAuth';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -13,6 +13,7 @@ export default function DashboardLayout({
 }) {
   const { user, logout, logoutAllDevices } = useAuth();
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const router = useRouter();
 
   const handleLogout = async () => {
@@ -27,16 +28,40 @@ export default function DashboardLayout({
 
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      <SidebarMenu />
-      <div className="flex-1 flex flex-col min-h-screen">
+    <div className="h-screen bg-gray-50 flex">
+      {/* Sidebar */}
+      <div className={`${sidebarOpen ? 'w-64' : 'w-0'} transition-all duration-300 ease-in-out overflow-hidden hidden lg:block`}>
+        <SidebarMenu onClose={() => setSidebarOpen(false)} />
+      </div>
+      
+      {/* Sidebar mobile */}
+      {sidebarOpen && (
+        <div className="lg:hidden">
+          <SidebarMenu onClose={() => setSidebarOpen(false)} />
+        </div>
+      )}
+      
+      <div className="flex-1 flex flex-col h-screen">
         {/* Header global do dashboard */}
         <header className="flex items-center justify-between bg-white h-20 px-8 border-b border-gray-200">
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900">Dashboard</h2>
-            <span className="text-gray-500 text-sm">
-              Bem-vindo de volta, {user?.name || 'Usuário'}
-            </span>
+          <div className="flex items-center gap-4">
+            {/* Botão para abrir sidebar - só aparece quando sidebar está fechada */}
+            {!sidebarOpen && (
+              <button
+                onClick={() => setSidebarOpen(true)}
+                className="flex items-center justify-center w-10 h-10 text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors"
+                title="Abrir Menu"
+              >
+                <List size={20} />
+              </button>
+            )}
+            
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900">Dashboard</h2>
+              <span className="text-gray-500 text-sm">
+                Bem-vindo de volta, {user?.name || 'Usuário'}
+              </span>
+            </div>
           </div>
           <div className="flex items-center gap-4">
             {/* Menu do usuário */}
@@ -85,6 +110,14 @@ export default function DashboardLayout({
         <div 
           className="fixed inset-0 z-40" 
           onClick={() => setShowUserMenu(false)}
+        />
+      )}
+      
+      {/* Overlay para fechar o sidebar em mobile */}
+      {sidebarOpen && (
+        <div 
+          className="fixed inset-0 z-30 lg:hidden" 
+          onClick={() => setSidebarOpen(false)}
         />
       )}
     </div>

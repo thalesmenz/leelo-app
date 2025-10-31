@@ -26,13 +26,20 @@ interface Receivable {
   };
 }
 
-export default function ReceivablesTab() {
+interface ReceivablesTabProps {
+  onRefresh?: () => void;
+}
+
+export default function ReceivablesTab({ onRefresh }: ReceivablesTabProps) {
   const { userId } = useAuth();
   const { 
     isConsolidatedView, 
     selectedUserFilter, 
     selectedSubuserId,
-    consolidatedData 
+    consolidatedData,
+    selectedMonth,
+    selectedYear,
+    refreshConsolidatedData
   } = useFinance();
   
   const [receivables, setReceivables] = useState<Receivable[]>([]);
@@ -76,7 +83,6 @@ export default function ReceivablesTab() {
           return;
         }
       } else {
-        // Visão individual normal
         response = await accountsReceivableService.getByUserId(userId);
       }
 
@@ -154,18 +160,38 @@ export default function ReceivablesTab() {
     }
   };
 
+  const filterReceivablesByMonth = (receivables: Receivable[]) => {
+    if (!selectedMonth || !selectedYear) return receivables;
+    
+    const startOfMonth = new Date(selectedYear, selectedMonth - 1, 1);
+    const endOfMonth = new Date(selectedYear, selectedMonth, 0);
+    
+    return receivables.filter(r => {
+      const dueDate = new Date(r.due_date);
+      return dueDate >= startOfMonth && dueDate <= endOfMonth;
+    });
+  };
+
   const getFilteredReceivables = () => {
-    if (statusFilter === 'todos') {
-      return receivables;
+    let filtered = receivables;
+    
+    // Aplicar filtro de mês/ano
+    if (selectedMonth && selectedYear) {
+      filtered = filterReceivablesByMonth(filtered);
     }
-    const filtered = receivables.filter(receivable => receivable.status === statusFilter);
+    
+    // Aplicar filtro de status
+    if (statusFilter !== 'todos') {
+      filtered = filtered.filter(receivable => receivable.status === statusFilter);
+    }
+    
     return filtered;
   };
 
   // Recarrega contas a receber quando mudam os filtros
   useEffect(() => { 
     loadReceivables(); 
-  }, [isConsolidatedView, selectedUserFilter, selectedSubuserId, consolidatedData]);
+  }, [isConsolidatedView, selectedUserFilter, selectedSubuserId, consolidatedData, selectedMonth, selectedYear]);
 
   // Carrega dados iniciais quando userId muda ou quando não está em visão consolidada
   useEffect(() => {
@@ -204,6 +230,11 @@ export default function ReceivablesTab() {
       await accountsReceivableService.deleteById(receivable.id);
       showToast.success('Conta a receber removida com sucesso!');
       loadReceivables();
+      if (onRefresh) onRefresh();
+      // Recarregar dados consolidados se estiver em visão consolidada
+      if (isConsolidatedView) {
+        await refreshConsolidatedData();
+      }
     } catch (error: any) {
       showToast.error(error.message || 'Erro ao remover conta a receber');
     }
@@ -215,6 +246,11 @@ export default function ReceivablesTab() {
       // Exibir a mensagem específica do backend que inclui informação sobre a transação
       showToast.success(response.message || 'Conta a receber marcada como recebida!');
       loadReceivables();
+      if (onRefresh) onRefresh();
+      // Recarregar dados consolidados se estiver em visão consolidada
+      if (isConsolidatedView) {
+        await refreshConsolidatedData();
+      }
     } catch (error: any) {
       showToast.error(error.message || 'Erro ao marcar como recebido');
     }
@@ -229,22 +265,37 @@ export default function ReceivablesTab() {
       // Exibir a mensagem específica do backend que inclui informação sobre a transação
       showToast.success(response.message || 'Conta a receber marcada como pendente!');
       loadReceivables();
+      if (onRefresh) onRefresh();
+      // Recarregar dados consolidados se estiver em visão consolidada
+      if (isConsolidatedView) {
+        await refreshConsolidatedData();
+      }
     } catch (error: any) {
       showToast.error(error.message || 'Erro ao marcar como pendente');
     }
   };
 
-  const handleCreateSuccess = () => {
+  const handleCreateSuccess = async () => {
     setIsCreateModalOpen(false);
     setSearchTerm('');
     loadReceivables();
+    if (onRefresh) onRefresh();
+    // Recarregar dados consolidados se estiver em visão consolidada
+    if (isConsolidatedView) {
+      await refreshConsolidatedData();
+    }
   };
 
-  const handleEditSuccess = () => {
+  const handleEditSuccess = async () => {
     setIsEditModalOpen(false);
     setSelectedReceivable(null);
     setSearchTerm('');
     loadReceivables();
+    if (onRefresh) onRefresh();
+    // Recarregar dados consolidados se estiver em visão consolidada
+    if (isConsolidatedView) {
+      await refreshConsolidatedData();
+    }
   };
 
   const formatDate = (dateString: string) => {

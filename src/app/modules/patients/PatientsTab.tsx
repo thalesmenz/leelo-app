@@ -14,7 +14,7 @@ interface Patient {
   user_id: string;
   cpf: string;
   name: string;
-  phone: string;
+  phone: string | number;
   email: string;
   birth_date: string;
   status: 'Ativo' | 'Inativo';
@@ -22,6 +22,43 @@ interface Patient {
   nextVisit?: string;
   treatment?: string;
   created_at: string;
+}
+
+// Funções de máscara
+function maskCPF(value: string) {
+  if (!value || typeof value !== 'string') {
+    return '';
+  }
+  return value
+    .replace(/\D/g, '')
+    .replace(/(\d{3})(\d)/, '$1.$2')
+    .replace(/(\d{3})(\d)/, '$1.$2')
+    .replace(/(\d{3})(\d{1,2})$/, '$1-$2')
+    .slice(0, 14);
+}
+
+function maskPhone(value: string | number) {
+  if (!value) {
+    return '';
+  }
+  
+  // Converte para string se for número
+  const stringValue = String(value);
+  
+  // Remove todos os caracteres não numéricos
+  const numbers = stringValue.replace(/\D/g, '');
+  
+  // Aplica a máscara baseada no tamanho
+  if (numbers.length <= 2) {
+    return numbers;
+  } else if (numbers.length <= 6) {
+    return numbers.replace(/(\d{2})(\d)/, '($1) $2');
+  } else {
+    return numbers
+      .replace(/(\d{2})(\d)/, '($1) $2')
+      .replace(/(\d{5})(\d)/, '$1-$2')
+      .slice(0, 15);
+  }
 }
 
 export default function PatientsTab() {
@@ -44,7 +81,8 @@ export default function PatientsTab() {
       const userId = localStorage.getItem('userId');
       if (userId) {
         const response = await patientService.getByUserId(userId);
-        setPatients(Array.isArray(response.data) ? response.data : [response.data]);
+        const patientsData = Array.isArray(response.data) ? response.data : [response.data];
+        setPatients(patientsData);
       } else {
         setPatients([]);
       }
@@ -223,10 +261,8 @@ export default function PatientsTab() {
             <thead>
               <tr className="text-left text-gray-600">
                 <th className="py-2 px-2 border-b border-gray-200">Paciente</th>
-                <th className="py-2 px-2 border-b border-gray-200">Contato</th>
-                <th className="py-2 px-2 border-b border-gray-200">Última Consulta</th>
-                <th className="py-2 px-2 border-b border-gray-200">Próxima Consulta</th>
-                <th className="py-2 px-2 border-b border-gray-200">Tratamento</th>
+                <th className="py-2 px-2 border-b border-gray-200">Email</th>
+                <th className="py-2 px-2 border-b border-gray-200">Telefone</th>
                 <th className="py-2 px-2 border-b border-gray-200">Status</th>
                 <th className="py-2 px-2 border-b border-gray-200 text-center">Ações</th>
               </tr>
@@ -236,23 +272,20 @@ export default function PatientsTab() {
                 <tr key={idx} className="hover:bg-gray-50">
                   <td className={`py-4 px-2${idx !== 0 ? ' border-t border-gray-200' : ''}`}>
                     <div className="font-bold text-base">{p.name}</div>
-                    <div className="text-xs text-gray-500">CPF: {p.cpf}</div>
+                    <div className="text-xs text-gray-500">CPF: {maskCPF(p.cpf)}</div>
                   </td>
-                  <td className={`py-4 px-2${idx !== 0 ? ' border-t border-gray-200' : ''}`}> 
-                    <div className="flex flex-col gap-1 text-gray-600 text-sm">
-                      <span className="flex items-center gap-1">
-                        <Phone size={16} />
-                        {p.phone}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Envelope size={16} />
-                        {p.email}
-                      </span>
+                  <td className={`py-4 px-2${idx !== 0 ? ' border-t border-gray-200' : ''}`}>
+                    <div className="flex items-center gap-1 text-gray-600 text-sm">
+                      <Envelope size={16} />
+                      {p.email}
                     </div>
                   </td>
-                  <td className={`py-2 px-2${idx !== 0 ? ' border-t border-gray-200' : ''}`}>{formatDate(p.lastVisit || '')}</td>
-                  <td className={`py-2 px-2${idx !== 0 ? ' border-t border-gray-200' : ''}`}>{formatDate(p.nextVisit || '')}</td>
-                  <td className={`py-2 px-2${idx !== 0 ? ' border-t border-gray-200' : ''}`}>{p.treatment || '-'}</td>
+                  <td className={`py-4 px-2${idx !== 0 ? ' border-t border-gray-200' : ''}`}>
+                    <div className="flex items-center gap-1 text-gray-600 text-sm">
+                      <Phone size={16} />
+                      {p.phone ? maskPhone(p.phone) : 'Sem telefone'}
+                    </div>
+                  </td>
                   <td className={`py-2 px-2${idx !== 0 ? ' border-t border-gray-200' : ''}`}>
                     <span className={`px-3 py-1 rounded-full text-xs font-semibold ${p.status === "Ativo" ? "bg-green-100 text-green-700" : "bg-gray-200 text-gray-600"}`}>
                       {p.status}

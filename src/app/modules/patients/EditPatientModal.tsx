@@ -1,6 +1,8 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Modal } from '@/app/components/Modal';
+import { PhoneInput } from '@/app/components/PhoneInput';
+import { DateInput } from '@/app/components/DateInput';
 import { PencilSimple, FloppyDisk } from 'phosphor-react';
 import { useEffect } from 'react';
 import { createPatientSchema, type CreatePatientFormData } from '@/app/schemas/patient';
@@ -12,7 +14,7 @@ interface Patient {
   user_id: string;
   cpf: string;
   name: string;
-  phone: string;
+  phone: string | number;
   email: string;
   birth_date: string;
   status: 'Ativo' | 'Inativo';
@@ -31,6 +33,8 @@ export default function EditPatientModal({ isOpen, onClose, onSuccess, patient }
     register,
     handleSubmit,
     reset,
+    setValue,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<CreatePatientFormData>({
     resolver: zodResolver(createPatientSchema),
@@ -107,16 +111,13 @@ export default function EditPatientModal({ isOpen, onClose, onSuccess, patient }
           {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>}
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Telefone *</label>
-          <input
-            {...register('phone')}
-            type="text"
-            className={`w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-200 ${errors.phone ? 'border-red-300' : 'border-gray-300'}`}
-            placeholder="(00) 00000-0000"
-          />
-          {errors.phone && <p className="mt-1 text-sm text-red-600">{errors.phone.message}</p>}
-        </div>
+        <PhoneInput
+          label="Telefone"
+          name="phone"
+          error={errors.phone}
+          value={watch('phone')}
+          setValue={val => setValue('phone', val)}
+        />
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
@@ -129,16 +130,13 @@ export default function EditPatientModal({ isOpen, onClose, onSuccess, patient }
           {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>}
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Data de Nascimento *</label>
-          <input
-            {...register('birth_date')}
-            type="text"
-            className={`w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-200 ${errors.birth_date ? 'border-red-300' : 'border-gray-300'}`}
-            placeholder="00/00/0000"
-          />
-          {errors.birth_date && <p className="mt-1 text-sm text-red-600">{errors.birth_date.message}</p>}
-        </div>
+        <DateInput
+          label="Data de Nascimento"
+          register={register('birth_date')}
+          error={errors.birth_date}
+          value={watch('birth_date')}
+          setValue={val => setValue('birth_date', val)}
+        />
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Status *</label>

@@ -1,15 +1,13 @@
-import axios from 'axios';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
+import api from '../config/axios';
 
 export const userService = {
   async getById(userId: string) {
-    const response = await axios.get(`${API_URL}users/${userId}`);
+    const response = await api.get(`users/${userId}`);
     return response.data;
   },
 
   async getServices(userId: string) {
-    const response = await axios.get(`${API_URL}user-services/user/${userId}`);
+    const response = await api.get(`user-services/user/${userId}`);
     return response.data;
   },
 }; 

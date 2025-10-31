@@ -52,6 +52,8 @@ export default function WorkScheduleConfigModal({ isOpen, onClose }: WorkSchedul
   }, [isOpen, userId]);
 
   const loadExistingData = async () => {
+    if (!userId) return;
+    
     setInitialLoading(true);
     try {
       const response = await workScheduleService.getAll(userId);

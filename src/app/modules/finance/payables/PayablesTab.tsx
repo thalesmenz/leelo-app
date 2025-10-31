@@ -36,7 +36,10 @@ export default function PayablesTab({ onRefresh }: PayablesTabProps) {
     isConsolidatedView, 
     selectedUserFilter, 
     selectedSubuserId,
-    consolidatedData 
+    consolidatedData,
+    selectedMonth,
+    selectedYear,
+    refreshConsolidatedData
   } = useFinance();
   
   const [payables, setPayables] = useState<Payable[]>([]);
@@ -80,7 +83,6 @@ export default function PayablesTab({ onRefresh }: PayablesTabProps) {
           return;
         }
       } else {
-        // Visão individual normal
         response = await accountsPayableService.getByUserId(userId);
       }
 
@@ -158,18 +160,38 @@ export default function PayablesTab({ onRefresh }: PayablesTabProps) {
     }
   };
 
+  const filterPayablesByMonth = (payables: Payable[]) => {
+    if (!selectedMonth || !selectedYear) return payables;
+    
+    const startOfMonth = new Date(selectedYear, selectedMonth - 1, 1);
+    const endOfMonth = new Date(selectedYear, selectedMonth, 0);
+    
+    return payables.filter(p => {
+      const dueDate = new Date(p.due_date);
+      return dueDate >= startOfMonth && dueDate <= endOfMonth;
+    });
+  };
+
   const getFilteredPayables = () => {
-    if (statusFilter === 'todos') {
-      return payables;
+    let filtered = payables;
+    
+    // Aplicar filtro de mês/ano
+    if (selectedMonth && selectedYear) {
+      filtered = filterPayablesByMonth(filtered);
     }
-    const filtered = payables.filter(payable => payable.status === statusFilter);
+    
+    // Aplicar filtro de status
+    if (statusFilter !== 'todos') {
+      filtered = filtered.filter(payable => payable.status === statusFilter);
+    }
+    
     return filtered;
   };
 
   // Recarrega contas a pagar quando mudam os filtros
   useEffect(() => { 
     loadPayables(); 
-  }, [isConsolidatedView, selectedUserFilter, selectedSubuserId, consolidatedData]);
+  }, [isConsolidatedView, selectedUserFilter, selectedSubuserId, consolidatedData, selectedMonth, selectedYear]);
 
   // Carrega dados iniciais quando userId muda ou quando não está em visão consolidada
   useEffect(() => {
@@ -209,6 +231,10 @@ export default function PayablesTab({ onRefresh }: PayablesTabProps) {
       showToast.success('Conta a pagar removida com sucesso!');
       loadPayables();
       onRefresh();
+      // Recarregar dados consolidados se estiver em visão consolidada
+      if (isConsolidatedView) {
+        await refreshConsolidatedData();
+      }
     } catch (error: any) {
       showToast.error(error.message || 'Erro ao remover conta a pagar');
     }
@@ -221,6 +247,10 @@ export default function PayablesTab({ onRefresh }: PayablesTabProps) {
       showToast.success(response.message || 'Conta a pagar marcada como paga!');
       loadPayables();
       onRefresh();
+      // Recarregar dados consolidados se estiver em visão consolidada
+      if (isConsolidatedView) {
+        await refreshConsolidatedData();
+      }
     } catch (error: any) {
       showToast.error(error.message || 'Erro ao marcar como paga');
     }
@@ -236,24 +266,36 @@ export default function PayablesTab({ onRefresh }: PayablesTabProps) {
       showToast.success(response.message || 'Conta a pagar marcada como pendente!');
       loadPayables();
       onRefresh();
+      // Recarregar dados consolidados se estiver em visão consolidada
+      if (isConsolidatedView) {
+        await refreshConsolidatedData();
+      }
     } catch (error: any) {
       showToast.error(error.message || 'Erro ao marcar como pendente');
     }
   };
 
-  const handleCreateSuccess = () => {
+  const handleCreateSuccess = async () => {
     setIsCreateModalOpen(false);
     setSearchTerm('');
     loadPayables();
     onRefresh();
+    // Recarregar dados consolidados se estiver em visão consolidada
+    if (isConsolidatedView) {
+      await refreshConsolidatedData();
+    }
   };
 
-  const handleEditSuccess = () => {
+  const handleEditSuccess = async () => {
     setIsEditModalOpen(false);
     setSelectedPayable(null);
     setSearchTerm('');
     loadPayables();
     onRefresh();
+    // Recarregar dados consolidados se estiver em visão consolidada
+    if (isConsolidatedView) {
+      await refreshConsolidatedData();
+    }
   };
 
   const formatDate = (dateString: string) => {

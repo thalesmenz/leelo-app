@@ -1,5 +1,6 @@
+import api from '../config/axios';
 import axios from 'axios';
- 
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export const authService = {
@@ -19,7 +20,7 @@ export const authService = {
   },
 
   async getCurrentUser(token: string) {
-    const response = await axios.get(`${API_URL}auth/me`, {
+    const response = await api.get('auth/me', {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -28,26 +29,17 @@ export const authService = {
   },
 
   async signout(refreshToken: string) {
-    const response = await axios.post(`${API_URL}auth/signout`, { refresh_token: refreshToken });
+    const response = await api.post('auth/signout', { refresh_token: refreshToken });
     return response.data;
   },
 
   async signoutAll() {
-    const token = localStorage.getItem('access_token');
-    if (!token) {
-      throw new Error('Token não encontrado');
-    }
-
-    const response = await axios.post(`${API_URL}auth/signout-all`, {}, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await api.post('auth/signout-all');
     return response.data;
   },
 
   async validateToken(token: string) {
-    const response = await axios.get(`${API_URL}auth/validate`, {
+    const response = await api.get('auth/validate', {
       headers: {
         Authorization: `Bearer ${token}`,
       },

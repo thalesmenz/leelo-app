@@ -28,13 +28,20 @@ interface Transaction {
   };
 }
 
-export default function TransactionsTab() {
+interface TransactionsTabProps {
+  onRefresh?: () => void;
+}
+
+export default function TransactionsTab({ onRefresh }: TransactionsTabProps) {
   const { userId } = useAuth();
   const { 
     isConsolidatedView, 
     selectedUserFilter, 
     selectedSubuserId,
-    consolidatedData 
+    consolidatedData,
+    selectedMonth,
+    selectedYear,
+    refreshConsolidatedData
   } = useFinance();
   
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -62,7 +69,8 @@ export default function TransactionsTab() {
         if (selectedUserFilter === 'all') {
           // Usar dados consolidados
           if (consolidatedData?.transactions) {
-            setTransactions(consolidatedData.transactions);
+            const filtered = filterTransactionsByMonth(consolidatedData.transactions);
+            setTransactions(filtered);
             return;
           } else {
             // Se não há dados consolidados, buscar dados individuais
@@ -79,12 +87,12 @@ export default function TransactionsTab() {
           return;
         }
       } else {
-        // Visão individual normal
         response = await transactionService.getAll({ user_id: userId });
       }
 
       if (response?.success && response.data) {
-        setTransactions(response.data);
+        const filtered = filterTransactionsByMonth(response.data);
+        setTransactions(filtered);
       } else {
         setTransactions([]);
       }
@@ -95,6 +103,18 @@ export default function TransactionsTab() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const filterTransactionsByMonth = (transactions: Transaction[]) => {
+    if (!selectedMonth || !selectedYear) return transactions;
+    
+    const startOfMonth = new Date(selectedYear, selectedMonth - 1, 1);
+    const endOfMonth = new Date(selectedYear, selectedMonth, 0);
+    
+    return transactions.filter(t => {
+      const transactionDate = new Date(t.date);
+      return transactionDate >= startOfMonth && transactionDate <= endOfMonth;
+    });
   };
 
   const searchTransactions = async () => {
@@ -117,9 +137,11 @@ export default function TransactionsTab() {
         // Buscar em transações de subusuário específico
         const allTransactions = await subuserService.getSubuserTransactions(selectedSubuserId);
         if (allTransactions.success) {
-          const filtered = allTransactions.data.filter((t: Transaction) => 
+          let filtered = allTransactions.data.filter((t: Transaction) => 
             t.description?.toLowerCase().includes(searchTerm.toLowerCase())
           );
+          // Aplicar filtro de mês
+          filtered = filterTransactionsByMonth(filtered);
           setTransactions(filtered);
           return;
         }
@@ -129,7 +151,8 @@ export default function TransactionsTab() {
       }
 
       if (response?.success && response.data) {
-        setTransactions(response.data);
+        const filtered = filterTransactionsByMonth(response.data);
+        setTransactions(filtered);
       } else {
         setTransactions([]);
       }
@@ -166,24 +189,39 @@ export default function TransactionsTab() {
     setIsDeleteModalOpen(false);
   };
 
-  const handleCreateSuccess = () => {
+  const handleCreateSuccess = async () => {
     setIsCreateModalOpen(false);
     setSearchTerm('');
     loadTransactions();
+    if (onRefresh) onRefresh();
+    // Recarregar dados consolidados se estiver em visão consolidada
+    if (isConsolidatedView) {
+      await refreshConsolidatedData();
+    }
   };
 
-  const handleEditSuccess = () => {
+  const handleEditSuccess = async () => {
     setIsEditModalOpen(false);
     setSelectedTransaction(null);
     setSearchTerm('');
     loadTransactions();
+    if (onRefresh) onRefresh();
+    // Recarregar dados consolidados se estiver em visão consolidada
+    if (isConsolidatedView) {
+      await refreshConsolidatedData();
+    }
   };
 
-  const handleDeleteSuccess = () => {
+  const handleDeleteSuccess = async () => {
     setIsDeleteModalOpen(false);
     setSelectedTransaction(null);
     setSearchTerm('');
     loadTransactions();
+    if (onRefresh) onRefresh();
+    // Recarregar dados consolidados se estiver em visão consolidada
+    if (isConsolidatedView) {
+      await refreshConsolidatedData();
+    }
   };
 
   const formatDate = (dateString: string) => new Date(dateString).toLocaleDateString('pt-BR');
@@ -200,14 +238,15 @@ export default function TransactionsTab() {
     if (userId) {
       loadTransactions(); 
     }
-  }, [userId, isConsolidatedView, selectedUserFilter, selectedSubuserId]);
+  }, [userId, isConsolidatedView, selectedUserFilter, selectedSubuserId, selectedMonth, selectedYear]);
 
   // Recarrega quando dados consolidados mudam
   useEffect(() => {
     if (isConsolidatedView && selectedUserFilter === 'all' && consolidatedData?.transactions) {
-      setTransactions(consolidatedData.transactions);
+      const filtered = filterTransactionsByMonth(consolidatedData.transactions);
+      setTransactions(filtered);
     }
-  }, [consolidatedData, isConsolidatedView, selectedUserFilter]);
+  }, [consolidatedData, isConsolidatedView, selectedUserFilter, selectedMonth, selectedYear]);
 
   // Carrega transações iniciais quando o componente monta
   useEffect(() => {

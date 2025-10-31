@@ -1,40 +1,38 @@
-import axios from 'axios';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
+import api from '../config/axios';
 
 export const appointmentService = {
   async create(appointment: any) {
-    const response = await axios.post(`${API_URL}appointments`, appointment);
+    const response = await api.post('appointments', appointment);
     return response.data;
   },
 
   async createWithoutConflictCheck(appointment: any) {
-    const response = await axios.post(`${API_URL}appointments/without-conflict-check`, appointment);
+    const response = await api.post('appointments/without-conflict-check', appointment);
     return response.data;
   },
 
   async getAll(params?: any) {
-    const response = await axios.get(`${API_URL}appointments`, { params });
+    const response = await api.get('appointments', { params });
     return response.data;
   },
 
   async getById(id: string) {
-    const response = await axios.get(`${API_URL}appointments/${id}`);
+    const response = await api.get(`appointments/${id}`);
     return response.data;
   },
 
   async deleteById(id: string) {
-    const response = await axios.delete(`${API_URL}appointments/${id}`);
+    const response = await api.delete(`appointments/${id}`);
     return response.data;
   },
 
   async getByUserId(user_id: string) {
-    const response = await axios.get(`${API_URL}appointments/user/${user_id}`);
+    const response = await api.get(`appointments/user/${user_id}`);
     return response.data;
   },
 
   async updateStatus(id: string, status: string) {
-    const response = await axios.patch(`${API_URL}appointments/${id}/status`, { status });
+    const response = await api.patch(`appointments/${id}/status`, { status });
     return response.data;
   },
 
@@ -43,7 +41,7 @@ export const appointmentService = {
     if (serviceId) {
       params.append('service_id', serviceId);
     }
-    const response = await axios.get(`${API_URL}appointments/user/${userId}/available-slots?${params}`);
+    const response = await api.get(`appointments/user/${userId}/available-slots?${params}`);
     return response.data;
   },
 }; 

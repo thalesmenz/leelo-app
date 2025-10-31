@@ -42,12 +42,17 @@ export default function ViewMedicalRecordModal({
       setLoading(true);
       const response = await medicalRecordService.getById(recordId);
       
+      console.log('Response from API:', response);
+      
       if (response.success) {
+        console.log('Record data:', response.data);
         setRecord(response.data);
       } else {
+        console.error('API returned error:', response);
         showToast.error('Erro ao carregar prontuário');
       }
     } catch (error: any) {
+      console.error('Error loading record:', error);
       showToast.error('Erro ao carregar prontuário');
     } finally {
       setLoading(false);
@@ -88,11 +93,11 @@ export default function ViewMedicalRecordModal({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-600 mb-1">Nome</label>
-                <p className="text-gray-900 font-medium">{record.patient_name}</p>
+                <p className="text-gray-900 font-medium">{record.patient_name || 'Não informado'}</p>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-600 mb-1">CPF</label>
-                <p className="text-gray-900 font-mono">{record.patient_cpf}</p>
+                <p className="text-gray-900 font-mono">{record.patient_cpf || 'Não informado'}</p>
               </div>
             </div>
           </div>
@@ -105,7 +110,7 @@ export default function ViewMedicalRecordModal({
             </h3>
             <div>
               <label className="block text-sm font-medium text-gray-600 mb-1">Nome</label>
-              <p className="text-gray-900 font-medium">{record.professional_name}</p>
+              <p className="text-gray-900 font-medium">{record.professional_name || 'Não informado'}</p>
             </div>
           </div>
 

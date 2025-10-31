@@ -233,32 +233,9 @@ export function useAuth() {
             setUser(null);
           }
         } else {
-          // Token ainda válido, carrega usuário
+          // Token ainda válido, apenas carrega usuário do localStorage
           const user = JSON.parse(userData);
           setUser(user);
-          
-          // Verifica se o usuário no token corresponde ao usuário salvo
-          try {
-            const currentUser = await loadUserFromToken(accessToken);
-            if (currentUser.id !== user.id) {
-              // Usuário mudou, limpa dados antigos
-              clearTokens();
-              setUser(null);
-              setLoading(false);
-              return;
-            }
-            
-            // Atualiza o userId se necessário
-            if (localStorage.getItem('userId') !== currentUser.id) {
-              localStorage.setItem('userId', currentUser.id);
-            }
-          } catch (error) {
-            // Se falhar ao verificar usuário, limpa tudo
-            clearTokens();
-            setUser(null);
-            setLoading(false);
-            return;
-          }
           
           // Atualiza tokens no estado
           setTokens({
@@ -277,7 +254,7 @@ export function useAuth() {
     };
 
     initializeAuth();
-  }, [isTokenExpired, refreshAccessToken, loadUserFromToken, clearTokens]);
+  }, [isTokenExpired, refreshAccessToken, clearTokens]);
 
   return {
     user,

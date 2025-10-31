@@ -10,6 +10,9 @@ interface PhoneInputProps {
 }
 
 function maskPhone(value: string) {
+  if (!value || typeof value !== 'string') {
+    return '';
+  }
   return value
     .replace(/\D/g, '')
     .replace(/(\d{2})(\d)/, '($1) $2')
@@ -18,6 +21,9 @@ function maskPhone(value: string) {
 }
 
 function unmaskPhone(value: string) {
+  if (!value || typeof value !== 'string') {
+    return '';
+  }
   return value.replace(/\D/g, '');
 }
 

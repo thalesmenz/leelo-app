@@ -1,6 +1,4 @@
-import axios from 'axios';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
+import api from '../config/axios';
 
 export interface AnamneseQuestion {
   id: string;
@@ -43,52 +41,52 @@ export interface AnamneseQuestionStatistics {
 
 export const anamneseQuestionService = {
   async create(question: CreateAnamneseQuestionDTO) {
-    const response = await axios.post(`${API_URL}anamnese-questions`, question);
+    const response = await api.post('anamnese-questions', question);
     return response.data;
   },
 
   async getAll(params?: any) {
-    const response = await axios.get(`${API_URL}anamnese-questions`, { params });
+    const response = await api.get('anamnese-questions', { params });
     return response.data;
   },
 
   async getById(id: string) {
-    const response = await axios.get(`${API_URL}anamnese-questions/${id}`);
+    const response = await api.get(`anamnese-questions/${id}`);
     return response.data;
   },
 
   async getByUserId(user_id: string) {
-    const response = await axios.get(`${API_URL}anamnese-questions/user/${user_id}`);
+    const response = await api.get(`anamnese-questions/user/${user_id}`);
     return response.data;
   },
 
   async updateById(id: string, question: UpdateAnamneseQuestionDTO) {
-    const response = await axios.put(`${API_URL}anamnese-questions/${id}`, question);
+    const response = await api.put(`anamnese-questions/${id}`, question);
     return response.data;
   },
 
   async deleteById(id: string) {
-    const response = await axios.delete(`${API_URL}anamnese-questions/${id}`);
+    const response = await api.delete(`anamnese-questions/${id}`);
     return response.data;
   },
 
   async reorderQuestions(user_id: string, questionIds: string[]) {
-    const response = await axios.patch(`${API_URL}anamnese-questions/user/${user_id}/reorder`, { questionIds });
+    const response = await api.patch(`anamnese-questions/user/${user_id}/reorder`, { questionIds });
     return response.data;
   },
 
   async getByCategory(user_id: string, category: string) {
-    const response = await axios.get(`${API_URL}anamnese-questions/user/${user_id}/category/${encodeURIComponent(category)}`);
+    const response = await api.get(`anamnese-questions/user/${user_id}/category/${encodeURIComponent(category)}`);
     return response.data;
   },
 
   async search(user_id: string, searchTerm: string) {
-    const response = await axios.get(`${API_URL}anamnese-questions/user/${user_id}/search?search=${encodeURIComponent(searchTerm)}`);
+    const response = await api.get(`anamnese-questions/user/${user_id}/search?search=${encodeURIComponent(searchTerm)}`);
     return response.data;
   },
 
   async getStatistics(user_id: string) {
-    const response = await axios.get(`${API_URL}anamnese-questions/user/${user_id}/statistics`);
+    const response = await api.get(`anamnese-questions/user/${user_id}/statistics`);
     return response.data;
   },
 };
