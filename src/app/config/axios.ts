@@ -66,6 +66,13 @@ api.interceptors.response.use(
       }
     }
 
+    // Se erro 403 relacionado a assinatura (subscription required)
+    // Verifica o código específico no response para garantir que é erro de assinatura
+    if (error.response?.status === 403 && error.response?.data?.code === 'SUBSCRIPTION_REQUIRED') {
+      // Dispara evento customizado para abrir modal de assinatura
+      window.dispatchEvent(new CustomEvent('subscriptionRequired'));
+    }
+
     return Promise.reject(error);
   }
 );

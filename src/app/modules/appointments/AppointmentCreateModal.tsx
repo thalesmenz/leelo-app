@@ -11,6 +11,7 @@ interface AppointmentCreateModalProps {
   isOpen: boolean;
   onClose: () => void;
   services: { id: string; name: string; duration: number }[];
+  onSuccess?: () => void;
 }
 
 const TIMES = [
@@ -18,7 +19,7 @@ const TIMES = [
   '14:00', '15:00', '16:00', '17:00',
 ];
 
-export default function AppointmentCreateModal({ isOpen, onClose, services }: AppointmentCreateModalProps) {
+export default function AppointmentCreateModal({ isOpen, onClose, services, onSuccess }: AppointmentCreateModalProps) {
   const { register, handleSubmit, watch, setValue, reset, formState: { errors, isSubmitting } } = useForm({
     defaultValues: {
       patient_id: '',
@@ -123,6 +124,7 @@ export default function AppointmentCreateModal({ isOpen, onClose, services }: Ap
       } else {
         // Se não há conflito, criar normalmente
         showToast.success('Agendamento criado com sucesso!');
+        onSuccess?.();
         onClose();
         reset();
       }
@@ -139,6 +141,7 @@ export default function AppointmentCreateModal({ isOpen, onClose, services }: Ap
       showToast.success('Agendamento criado com sucesso! (com conflito de horário)');
       setShowConflictModal(false);
       setPendingAppointmentData(null);
+      onSuccess?.();
       onClose();
       reset();
     } catch (err: any) {

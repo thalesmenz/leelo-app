@@ -358,22 +358,22 @@ export default function ReceivablesTab({ onRefresh }: ReceivablesTabProps) {
 
   if (loading) {
     return (
-      <div className="bg-white rounded-2xl border border-gray-100 p-8">
+      <div className="bg-white rounded-2xl border border-gray-100 p-4 sm:p-6 lg:p-8">
         <div className="flex items-center justify-center h-32">
-          <div className="text-gray-500">Carregando contas a receber...</div>
+          <div className="text-sm sm:text-base text-gray-500">Carregando contas a receber...</div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 p-8">
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-2 text-xl font-bold text-blue-600">
-          <CurrencyDollar size={24} /> Contas a Receber
+    <div className="bg-white rounded-2xl border border-gray-100 p-4 sm:p-6 lg:p-8">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4 sm:mb-6">
+        <div className="flex items-center gap-2 text-lg sm:text-xl font-bold text-blue-600">
+          <CurrencyDollar size={20} className="sm:w-6 sm:h-6" /> Contas a Receber
         </div>
         <button
-          className="bg-gradient-to-r from-blue-500 to-green-400 hover:from-green-400 hover:to-blue-500 text-white px-4 py-2 rounded font-semibold flex items-center gap-2 shadow transition-colors"
+          className="w-full sm:w-auto bg-gradient-to-r from-blue-500 to-green-400 hover:from-green-400 hover:to-blue-500 text-white px-4 py-2 rounded font-semibold flex items-center justify-center gap-2 shadow transition-colors text-sm sm:text-base"
           onClick={handleOpenCreateModal}
         >
           <Plus size={18} /> Nova Conta
@@ -381,10 +381,10 @@ export default function ReceivablesTab({ onRefresh }: ReceivablesTabProps) {
       </div>
 
       {/* Filtros de Status */}
-      <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
+      <div className="flex gap-2 mb-4 sm:mb-6 overflow-x-auto pb-2 -mx-4 sm:mx-0 px-4 sm:px-0">
         <button
           onClick={() => setStatusFilter('todos')}
-          className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
+          className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium whitespace-nowrap transition-colors shrink-0 ${
             statusFilter === 'todos'
               ? 'bg-blue-100 text-blue-700 border border-blue-200'
               : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
@@ -394,7 +394,7 @@ export default function ReceivablesTab({ onRefresh }: ReceivablesTabProps) {
         </button>
         <button
           onClick={() => setStatusFilter('pendente')}
-          className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
+          className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium whitespace-nowrap transition-colors shrink-0 ${
             statusFilter === 'pendente'
               ? 'bg-yellow-100 text-yellow-700 border border-yellow-200'
               : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
@@ -404,7 +404,7 @@ export default function ReceivablesTab({ onRefresh }: ReceivablesTabProps) {
         </button>
         <button
           onClick={() => setStatusFilter('recebido')}
-          className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
+          className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium whitespace-nowrap transition-colors shrink-0 ${
             statusFilter === 'recebido'
               ? 'bg-green-100 text-green-700 border border-green-200'
               : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
@@ -415,32 +415,32 @@ export default function ReceivablesTab({ onRefresh }: ReceivablesTabProps) {
       </div>
 
       {/* Barra de Pesquisa */}
-      <div className="flex gap-2 mb-6">
-        <div className="flex-1 relative">
+      <div className="mb-4 sm:mb-6">
+        <div className="relative">
           <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
             <MagnifyingGlass size={18} />
           </span>
           <input
             type="text"
-            placeholder="Buscar contas a receber por nome..."
+            placeholder="Buscar contas a receber..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && searchReceivables()}
-            className="w-full border border-gray-200 rounded px-10 py-2 focus:outline-none focus:ring-2 focus:ring-blue-200 bg-white"
+            className="w-full border border-gray-200 rounded px-10 pr-20 sm:pr-10 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 bg-white"
           />
+          <button 
+            onClick={searchReceivables}
+            disabled={searching}
+            className="absolute right-2 top-1/2 -translate-y-1/2 bg-blue-600 text-white px-3 py-1.5 rounded text-xs sm:text-sm flex items-center gap-1 hover:bg-blue-700 disabled:opacity-50"
+          >
+            <MagnifyingGlass size={16} className="sm:hidden" />
+            <span className="hidden sm:inline">{searching ? 'Buscando...' : 'Pesquisar'}</span>
+          </button>
         </div>
-        <button 
-          onClick={searchReceivables}
-          disabled={searching}
-          className="bg-blue-600 text-white px-4 py-2 rounded flex items-center gap-2 hover:bg-blue-700 disabled:opacity-50"
-        >
-          <MagnifyingGlass size={18} />
-          {searching ? 'Buscando...' : 'Pesquisar'}
-        </button>
       </div>
 
       {getFilteredReceivables().length === 0 ? (
-        <div className="text-center py-8 text-gray-500">
+        <div className="text-center py-8 text-sm sm:text-base text-gray-500">
           {searchTerm 
             ? 'Nenhuma conta a receber encontrada para a busca.'
             : statusFilter === 'todos'
@@ -448,77 +448,143 @@ export default function ReceivablesTab({ onRefresh }: ReceivablesTabProps) {
             : `Nenhuma conta a receber com status "${statusFilter}" encontrada.`}
         </div>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="min-w-full text-sm">
-            <thead>
-              <tr className="text-gray-500 text-left">
-                <th className="py-2 px-4 font-semibold">Nome</th>
-                <th className="py-2 px-4 font-semibold">Descrição</th>
-                <th className="py-2 px-4 font-semibold">Valor</th>
-                <th className="py-2 px-4 font-semibold">Vencimento</th>
-                <th className="py-2 px-4 font-semibold">Status</th>
-                {isConsolidatedView && <th className="py-2 px-4 font-semibold">Usuário</th>}
-                <th className="py-2 px-4 font-semibold">Ações</th>
-              </tr>
-            </thead>
-            <tbody>
-              {getFilteredReceivables().map((receivable) => (
-                <tr key={receivable.id} className="border-t border-gray-300 hover:bg-gray-50">
-                  <td className="py-2 px-4 font-medium">{receivable.name}</td>
-                  <td className="py-2 px-4">{receivable.description}</td>
-                  <td className="py-2 px-4 font-bold text-green-700">R$ {Number(receivable.amount).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
-                  <td className={`py-2 px-4 ${isOverdue(receivable.due_date) ? 'text-red-600 font-semibold' : ''}`}>
-                    {formatDate(receivable.due_date)}
-                  </td>
-                  <td className="py-2 px-4">
+        <>
+          {/* Cards Mobile */}
+          <div className="md:hidden space-y-3">
+            {getFilteredReceivables().map((receivable) => (
+              <div key={receivable.id} className="border border-gray-200 rounded-lg p-4 space-y-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-sm sm:text-base text-gray-900 mb-1 truncate">{receivable.name}</h3>
+                    <p className="text-xs sm:text-sm text-gray-600 mb-2 line-clamp-2">{receivable.description || '-'}</p>
+                    <div className="flex flex-col gap-1.5 mb-2">
+                      <div className="flex items-center gap-2 text-xs text-gray-500">
+                        <CalendarBlank size={14} />
+                        <span>Vencimento: <span className={isOverdue(receivable.due_date) ? 'text-red-600 font-semibold' : ''}>{formatDate(receivable.due_date)}</span></span>
+                      </div>
+                      {isConsolidatedView && (
+                        <div className="flex items-center gap-1 text-xs text-gray-500">
+                          <User size={14} />
+                          <span className="truncate">{receivable.user?.name || 'Usuário não identificado'}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-end gap-2 shrink-0">
+                    <span className="font-bold text-base text-green-700">
+                      R$ {Number(receivable.amount).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    </span>
                     {getStatusBadge(receivable)}
-                  </td>
-                  {isConsolidatedView && (
-                    <td className="py-2 px-4 text-xs text-gray-600">
-                      <span className="flex items-center gap-1">
-                        <User size={12} />
-                        {receivable.user?.name || 'Usuário não identificado'}
-                      </span>
-                    </td>
-                  )}
-                  <td className="py-2 px-4 flex gap-2">
+                  </div>
+                </div>
+                <div className="flex flex-col gap-2 pt-2 border-t border-gray-200">
+                  <div className="flex flex-col sm:flex-row gap-2">
                     {receivable.status === 'pendente' ? (
                       <button
-                        className="px-3 py-1 border border-green-200 bg-green-50 text-green-600 rounded hover:bg-green-100 font-medium text-xs flex items-center gap-1"
+                        className="w-full px-3 py-2 border border-green-200 bg-green-50 text-green-600 rounded hover:bg-green-100 font-medium text-xs flex items-center justify-center gap-1"
                         onClick={() => handleMarkAsReceived(receivable)}
-                        title="Marcar como recebido e criar transação"
                       >
-                        <CheckCircle size={12} /> Marcar como Recebido
+                        <CheckCircle size={14} /> Marcar como Recebido
                       </button>
                     ) : (
                       <button
-                        className="px-3 py-1 border border-yellow-200 bg-yellow-50 text-yellow-600 rounded hover:bg-yellow-100 font-medium text-xs flex items-center gap-1"
+                        className="w-full px-3 py-2 border border-yellow-200 bg-yellow-50 text-yellow-600 rounded hover:bg-yellow-100 font-medium text-xs flex items-center justify-center gap-1"
                         onClick={() => handleMarkAsPending(receivable)}
-                        title="Marcar como pendente e remover transação"
                       >
-                        <Clock size={12} /> Marcar como Pendente
+                        <Clock size={14} /> Marcar como Pendente
                       </button>
                     )}
                     <button
-                      className="px-3 py-1 border border-gray-300 rounded text-gray-700 hover:bg-gray-100 font-medium text-xs flex items-center gap-1"
+                      className="w-full px-3 py-2 border border-gray-300 rounded text-gray-700 hover:bg-gray-100 font-medium text-xs flex items-center justify-center gap-1"
                       onClick={() => handleOpenEditModal(receivable)}
-                      title="Editar conta a receber"
                     >
-                      <PencilSimple size={12} /> Editar
+                      <PencilSimple size={14} /> Editar
                     </button>
                     <button
-                      className="px-3 py-1 border border-red-200 bg-red-50 text-red-600 rounded hover:bg-red-100 font-medium text-xs flex items-center gap-1"
+                      className="w-full px-3 py-2 border border-red-200 bg-red-50 text-red-600 rounded hover:bg-red-100 font-medium text-xs flex items-center justify-center gap-1"
                       onClick={() => handleDeleteReceivable(receivable)}
-                      title="Excluir conta a receber"
                     >
-                      <Trash size={12} /> Excluir
+                      <Trash size={14} /> Excluir
                     </button>
-                  </td>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Tabela Desktop */}
+          <div className="hidden md:block overflow-x-auto">
+            <table className="min-w-full text-sm">
+              <thead>
+                <tr className="text-gray-500 text-left">
+                  <th className="py-2 px-4 font-semibold">Nome</th>
+                  <th className="py-2 px-4 font-semibold">Descrição</th>
+                  <th className="py-2 px-4 font-semibold">Valor</th>
+                  <th className="py-2 px-4 font-semibold">Vencimento</th>
+                  <th className="py-2 px-4 font-semibold">Status</th>
+                  {isConsolidatedView && <th className="py-2 px-4 font-semibold">Usuário</th>}
+                  <th className="py-2 px-4 font-semibold">Ações</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {getFilteredReceivables().map((receivable) => (
+                  <tr key={receivable.id} className="border-t border-gray-300 hover:bg-gray-50">
+                    <td className="py-2 px-4 font-medium">{receivable.name}</td>
+                    <td className="py-2 px-4">{receivable.description}</td>
+                    <td className="py-2 px-4 font-bold text-green-700">R$ {Number(receivable.amount).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                    <td className={`py-2 px-4 ${isOverdue(receivable.due_date) ? 'text-red-600 font-semibold' : ''}`}>
+                      {formatDate(receivable.due_date)}
+                    </td>
+                    <td className="py-2 px-4">
+                      {getStatusBadge(receivable)}
+                    </td>
+                    {isConsolidatedView && (
+                      <td className="py-2 px-4 text-xs text-gray-600">
+                        <span className="flex items-center gap-1">
+                          <User size={12} />
+                          {receivable.user?.name || 'Usuário não identificado'}
+                        </span>
+                      </td>
+                    )}
+                    <td className="py-2 px-4 flex gap-2">
+                      {receivable.status === 'pendente' ? (
+                        <button
+                          className="px-3 py-1 border border-green-200 bg-green-50 text-green-600 rounded hover:bg-green-100 font-medium text-xs flex items-center gap-1"
+                          onClick={() => handleMarkAsReceived(receivable)}
+                          title="Marcar como recebido e criar transação"
+                        >
+                          <CheckCircle size={12} /> Marcar como Recebido
+                        </button>
+                      ) : (
+                        <button
+                          className="px-3 py-1 border border-yellow-200 bg-yellow-50 text-yellow-600 rounded hover:bg-yellow-100 font-medium text-xs flex items-center gap-1"
+                          onClick={() => handleMarkAsPending(receivable)}
+                          title="Marcar como pendente e remover transação"
+                        >
+                          <Clock size={12} /> Marcar como Pendente
+                        </button>
+                      )}
+                      <button
+                        className="px-3 py-1 border border-gray-300 rounded text-gray-700 hover:bg-gray-100 font-medium text-xs flex items-center gap-1"
+                        onClick={() => handleOpenEditModal(receivable)}
+                        title="Editar conta a receber"
+                      >
+                        <PencilSimple size={12} /> Editar
+                      </button>
+                      <button
+                        className="px-3 py-1 border border-red-200 bg-red-50 text-red-600 rounded hover:bg-red-100 font-medium text-xs flex items-center gap-1"
+                        onClick={() => handleDeleteReceivable(receivable)}
+                        title="Excluir conta a receber"
+                      >
+                        <Trash size={12} /> Excluir
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
       )}
 
       {/* Modais */}

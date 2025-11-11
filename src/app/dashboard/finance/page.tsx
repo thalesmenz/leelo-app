@@ -235,21 +235,21 @@ function FinancePageContent() {
   };
 
   return (
-    <div className="flex-1 p-8">
+    <div className="flex-1 p-4 sm:p-6 lg:p-8">
       <div className="max-w-7xl mx-auto">
-        <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+        <div className="mb-4 sm:mb-6 lg:mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
           <div>
-            <h1 className="text-3xl font-bold mb-1 flex items-center gap-2">
+            <h1 className="text-2xl sm:text-3xl font-bold mb-1 flex items-center gap-2">
               <span className="text-green-600">$</span> Financeiro
             </h1>
-            <p className="text-gray-500">Controle suas receitas, despesas e relatórios</p>
+            <p className="text-sm sm:text-base text-gray-500">Controle suas receitas, despesas e relatórios</p>
           </div>
         </div>
 
         {/* Filtros de Visão Consolidada */}
         <FinanceFilters />
 
-        <div className={`grid gap-6 mb-8 ${((new Date().getMonth() + 1 === selectedMonth && new Date().getFullYear() === selectedYear) || !stats) ? 'grid-cols-1 md:grid-cols-4' : 'grid-cols-1 md:grid-cols-3'}`}>
+        <div className={`grid gap-4 sm:gap-6 mb-4 sm:mb-6 lg:mb-8 ${((new Date().getMonth() + 1 === selectedMonth && new Date().getFullYear() === selectedYear) || !stats) ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'}`}>
           {loadingStats || !stats ? (
             Array.from({ length: 4 }).map((_, idx) => (
               <div key={idx} className="bg-white rounded shadow p-5 h-28 animate-pulse" />
@@ -290,11 +290,11 @@ function FinancePageContent() {
             </>
           )}
         </div>
-        <div className="flex w-full mb-8 gap-2">
+        <div className="flex w-full mb-4 sm:mb-6 lg:mb-8 gap-2 overflow-x-auto pb-2">
           {tabs.map((t) => (
             <button
               key={t}
-              className={`flex-1 py-2 rounded font-semibold text-base transition-colors border
+              className={`flex-1 sm:flex-none min-w-[120px] py-2 px-3 sm:px-4 rounded font-semibold text-sm sm:text-base transition-colors border whitespace-nowrap
                 ${tab === t
                   ? 'bg-blue-600 text-white border-blue-600'
                   : 'bg-gray-100 text-gray-500 border-transparent hover:bg-gray-200 hover:text-blue-700'}

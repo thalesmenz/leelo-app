@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Calendar, Plus, CaretLeft, CaretRight, Clock, MapPin, User, Gear } from 'phosphor-react';
 import WorkScheduleConfigModal from '../../modules/work-schedule/WorkScheduleConfigModal';
 import { appointmentService } from '../../services/appointmentService';
@@ -35,32 +35,40 @@ export default function AgendaPage() {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [eventToDelete, setEventToDelete] = useState<Event | null>(null);
   const [agendaTab, setAgendaTab] = useState<'pendentes' | 'concluidos'>('pendentes');
+  const [mounted, setMounted] = useState(false);
+
+  // Garantir que a formatação de data só aconteça no cliente
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Função para buscar agendamentos
+  const fetchAppointments = useCallback(async () => {
+    if (!userId) return;
+    try {
+      const res = await appointmentService.getByUserId(userId);
+      // Mapear os dados do backend para o formato Event
+      const mapped = (res.data || []).map((appt: any) => ({
+        id: appt.id,
+        paciente: appt.patient_name,
+        tipo: appt.service?.name || '',
+        local: 'Clínica', // ajuste se houver campo real
+        telefone: appt.patient_phone || '',
+        status: appt.status === 'confirmed' ? 'confirmed' : appt.status === 'completed' ? 'completed' : 'pending',
+        horario: new Date(appt.start_time).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+        duracao: appt.service?.duration ? `${appt.service.duration}min` : '',
+        data: appt.start_time,
+      }));
+      setEvents(mapped);
+    } catch {
+      setEvents([]);
+    }
+  }, [userId]);
 
   // Buscar agendamentos reais do backend
   useEffect(() => {
-    async function fetchAppointments() {
-      if (!userId) return;
-      try {
-        const res = await appointmentService.getByUserId(userId);
-        // Mapear os dados do backend para o formato Event
-        const mapped = (res.data || []).map((appt: any) => ({
-          id: appt.id,
-          paciente: appt.patient_name,
-          tipo: appt.service?.name || '',
-          local: 'Clínica', // ajuste se houver campo real
-          telefone: appt.patient_phone || '',
-          status: appt.status === 'confirmed' ? 'confirmed' : appt.status === 'completed' ? 'completed' : 'pending',
-          horario: new Date(appt.start_time).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
-          duracao: appt.service?.duration ? `${appt.service.duration}min` : '',
-          data: appt.start_time,
-        }));
-        setEvents(mapped);
-      } catch {
-        setEvents([]);
-      }
-    }
     fetchAppointments();
-  }, [currentDate, userId]);
+  }, [currentDate, userId, fetchAppointments]);
 
   // Buscar serviços ativos do usuário logado
   useEffect(() => {
@@ -163,33 +171,33 @@ export default function AgendaPage() {
   }
 
   return (
-    <div className="flex-1 p-6">
+    <div className="flex-1 p-4 sm:p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header da Agenda */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <Calendar size={28} className="text-blue-600" />
-              <h1 className="text-2xl font-bold text-gray-900">Agenda</h1>
+              <Calendar size={24} className="sm:w-7 sm:h-7 text-blue-600" />
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Agenda</h1>
             </div>
-            <span className="text-gray-500 text-sm">Gerencie seus agendamentos e horários</span>
+            <span className="text-gray-500 text-xs sm:text-sm">Gerencie seus agendamentos e horários</span>
           </div>
-          <div className="flex gap-2">
-            <button className="border border-gray-300 rounded px-4 py-2 text-sm font-medium flex items-center gap-2 hover:bg-gray-100" onClick={() => setShowWorkScheduleModal(true)}>
+          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+            <button className="w-full sm:w-auto border border-gray-300 rounded px-4 py-2 text-sm font-medium flex items-center justify-center gap-2 hover:bg-gray-100" onClick={() => setShowWorkScheduleModal(true)}>
               <Gear size={18} /> Configurar Horários
             </button>
-            <button className="bg-gradient-to-r from-blue-500 to-green-400 hover:from-green-400 hover:to-blue-500 text-white px-4 py-2 rounded font-semibold flex items-center gap-2 shadow transition-colors" onClick={() => setShowAddEvent(true)}>
+            <button className="w-full sm:w-auto bg-gradient-to-r from-blue-500 to-green-400 hover:from-green-400 hover:to-blue-500 text-white px-4 py-2 rounded font-semibold flex items-center justify-center gap-2 shadow transition-colors" onClick={() => setShowAddEvent(true)}>
               <Plus size={18} /> Novo Agendamento
             </button>
           </div>
         </div>
 
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 sm:gap-6">
           {/* Calendário à esquerda */}
           <div className="md:col-span-1">
-            <div className="bg-white rounded-lg border border-gray-200 p-4 mb-4">
-              <div className="text-lg font-semibold text-gray-800 text-center mb-2">Calendário</div>
+            <div className="bg-white rounded-lg border border-gray-200 p-3 sm:p-4 mb-4">
+              <div className="text-base sm:text-lg font-semibold text-gray-800 text-center mb-2">Calendário</div>
               <div className="flex items-center justify-center gap-2 mb-2">
                 <button
                   onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1))}
@@ -197,8 +205,8 @@ export default function AgendaPage() {
                 >
                   <CaretLeft size={20} />
                 </button>
-                <span className="text-gray-700 font-medium">
-                  {currentDate.toLocaleString('default', { month: 'long', year: 'numeric' })}
+                <span className="text-gray-700 font-medium text-sm sm:text-base">
+                  {mounted ? currentDate.toLocaleString('pt-BR', { month: 'long', year: 'numeric' }) : ''}
                 </span>
                 <button
                   onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1))}
@@ -237,9 +245,9 @@ export default function AgendaPage() {
           </div>
           {/* Cards de agendamento centralizados */}
           <div className="md:col-span-3">
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <div className="text-xl font-bold text-gray-900 mb-2 text-center">
-                {`Agendamentos - ${selectedDate ? selectedDate.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) : ''}`}
+            <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6">
+              <div className="text-lg sm:text-xl font-bold text-gray-900 mb-2 text-center">
+                {mounted && selectedDate ? `Agendamentos - ${selectedDate.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}` : 'Agendamentos'}
               </div>
               {/* Abas de seleção */}
               <div className="flex w-full mb-6 gap-2">
@@ -266,34 +274,34 @@ export default function AgendaPage() {
                   <div className="text-gray-500 text-center py-4">Nenhum agendamento pendente.</div>
                 ) : (
                   pending.map((event, idx) => (
-                    <div key={event.id} className="rounded-lg border border-gray-200 p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-2 shadow-sm mb-3">
-                      <div className="flex items-center gap-4 min-w-[120px]">
-                        <div className="flex flex-col items-center">
+                    <div key={event.id} className="rounded-lg border border-gray-200 p-4 flex flex-col gap-4 shadow-sm mb-3">
+                      <div className="flex items-center gap-4 md:min-w-[120px]">
+                        <div className="flex flex-col items-center shrink-0">
                           <span className="text-2xl font-bold text-gray-900">{event.horario}</span>
-                      <span className="text-xs text-gray-500">{event.duracao}</span>
-                    </div>
-                      </div>
-                      <div className="flex-1 flex flex-col md:flex-row md:items-center gap-2 md:gap-6">
-                        <div className="flex-1">
-                          <div className="font-semibold text-gray-900 text-base flex items-center gap-1">
-                            <User size={16} /> {event.paciente}
+                          <span className="text-xs text-gray-500">{event.duracao}</span>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="font-semibold text-gray-900 text-base flex items-center gap-1 mb-1">
+                            <User size={16} /> <span className="truncate">{event.paciente}</span>
                           </div>
-                      <div className="text-sm text-gray-600">{event.tipo}</div>
-                      <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
-                        <span><MapPin size={14} className="inline" /> {event.local}</span>
-                        <span>|</span>
-                        <span>{event.telefone}</span>
+                          <div className="text-sm text-gray-600 mb-1">{event.tipo}</div>
+                          <div className="flex items-center gap-2 text-xs text-gray-500 flex-wrap">
+                            <span className="flex items-center gap-1"><MapPin size={14} /> {event.local}</span>
+                            <span>|</span>
+                            <span>{event.telefone}</span>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                        <div className="flex flex-col md:flex-row md:items-center gap-2 min-w-[120px] md:justify-end">
-                          <span className="px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-700">
-                            {event.status === 'completed' ? 'concluído' : 'pendente'}
-                      </span>
-                          <button className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm"
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 pt-2 border-t border-gray-200">
+                        <span className="px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-700 w-fit">
+                          {event.status === 'completed' ? 'concluído' : 'pendente'}
+                        </span>
+                        <div className="flex flex-col sm:flex-row gap-2 flex-1 sm:justify-end">
+                          <button className="w-full sm:w-auto px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm font-medium"
                             onClick={() => handleUpdateAppointmentStatus(event.id, 'completed')}
                           >Marcar como concluído</button>
                           <button
-                            className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 text-sm"
+                            className="w-full sm:w-auto px-3 py-2 bg-red-600 text-white rounded hover:bg-red-700 text-sm font-medium"
                             onClick={() => {
                               setEventToDelete(event);
                               setDeleteModalOpen(true);
@@ -311,33 +319,33 @@ export default function AgendaPage() {
                   <div className="text-gray-500 text-center py-4">Nenhum agendamento concluído.</div>
                 ) : (
                   completed.map((event, idx) => (
-                    <div key={event.id} className="rounded-lg border border-gray-200 p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-2 shadow-sm mb-3 bg-green-50">
-                      <div className="flex items-center gap-4 min-w-[120px]">
-                        <div className="flex flex-col items-center">
+                    <div key={event.id} className="rounded-lg border border-gray-200 p-4 flex flex-col gap-4 shadow-sm mb-3 bg-green-50">
+                      <div className="flex items-center gap-4 md:min-w-[120px]">
+                        <div className="flex flex-col items-center shrink-0">
                           <span className="text-2xl font-bold text-gray-900">{event.horario}</span>
                           <span className="text-xs text-gray-500">{event.duracao}</span>
                         </div>
-                      </div>
-                      <div className="flex-1 flex flex-col md:flex-row md:items-center gap-2 md:gap-6">
-                        <div className="flex-1">
-                          <div className="font-semibold text-gray-900 text-base flex items-center gap-1">
-                            <User size={16} /> {event.paciente}
-                  </div>
-                          <div className="text-sm text-gray-600">{event.tipo}</div>
-                          <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
-                            <span><MapPin size={14} className="inline" /> {event.local}</span>
+                        <div className="flex-1 min-w-0">
+                          <div className="font-semibold text-gray-900 text-base flex items-center gap-1 mb-1">
+                            <User size={16} /> <span className="truncate">{event.paciente}</span>
+                          </div>
+                          <div className="text-sm text-gray-600 mb-1">{event.tipo}</div>
+                          <div className="flex items-center gap-2 text-xs text-gray-500 flex-wrap">
+                            <span className="flex items-center gap-1"><MapPin size={14} /> {event.local}</span>
                             <span>|</span>
                             <span>{event.telefone}</span>
-              </div>
-            </div>
-                        <div className="flex flex-col md:flex-row md:items-center gap-2 min-w-[120px] md:justify-end">
-                          <span className="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">concluído</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 pt-2 border-t border-gray-200">
+                        <span className="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700 w-fit">concluído</span>
+                        <div className="flex flex-col sm:flex-row gap-2 flex-1 sm:justify-end">
                           <button
-                            className="px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600 text-sm"
+                            className="w-full sm:w-auto px-3 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 text-sm font-medium"
                             onClick={() => handleUpdateAppointmentStatus(event.id, 'pending')}
                           >Marcar como pendente</button>
                           <button
-                            className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 text-sm"
+                            className="w-full sm:w-auto px-3 py-2 bg-red-600 text-white rounded hover:bg-red-700 text-sm font-medium"
                             onClick={() => {
                               setEventToDelete(event);
                               setDeleteModalOpen(true);
@@ -370,6 +378,7 @@ export default function AgendaPage() {
           isOpen={showAddEvent}
           onClose={() => setShowAddEvent(false)}
           services={services}
+          onSuccess={fetchAppointments}
         />
         <AppointmentConfirmDeleteModal
           isOpen={deleteModalOpen}

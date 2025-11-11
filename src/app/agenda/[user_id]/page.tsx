@@ -2,6 +2,8 @@
 
 import { useState, useEffect, use } from 'react';
 import { Calendar, CaretLeft, CaretRight, Clock, User, CheckCircle, ArrowLeft } from 'phosphor-react';
+import { PhoneInput } from '../../components/PhoneInput';
+import { showToast } from '../../utils/toast';
 import { appointmentService } from '../../services/appointmentService';
 import { userService } from '../../services/userService';
 import { userServiceService } from '../../services/userServiceService';
@@ -173,7 +175,7 @@ export default function PublicAgendaPage({ params }: { params: Promise<{ user_id
       await appointmentService.create(appointmentData);
       setCurrentStep(5);
     } catch (error) {
-      alert('Erro ao criar agendamento. Tente novamente.');
+      showToast.error('Erro ao criar agendamento. Tente novamente.');
     } finally {
       setIsSubmitting(false);
     }
@@ -405,16 +407,17 @@ export default function PublicAgendaPage({ params }: { params: Promise<{ user_id
               </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2">Telefone</label>
-                <input
-                  type="tel"
-                  value={patientData.phone}
-                  onChange={(e) => setPatientData({...patientData, phone: e.target.value})}
-                  className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition-all duration-200"
-                  placeholder="(11) 99999-9999"
-                />
-              </div>
+              <PhoneInput
+                label="Telefone"
+                name="phone"
+                value={patientData.phone}
+                setValue={(value) =>
+                  setPatientData((prev) => ({
+                    ...prev,
+                    phone: value,
+                  }))
+                }
+              />
               <div>
                 <label className="block text-sm font-bold text-gray-700 mb-2">CPF</label>
                 <input
@@ -435,7 +438,13 @@ export default function PublicAgendaPage({ params }: { params: Promise<{ user_id
             <div className="pt-6">
               <button
                 onClick={handleSubmit}
-                disabled={isSubmitting || !patientData.name || !patientData.email || !patientData.phone || !patientData.cpf}
+                disabled={
+                  isSubmitting ||
+                  !patientData.name ||
+                  !patientData.email ||
+                  patientData.phone.length < 10 ||
+                  !patientData.cpf
+                }
                 className="w-full bg-gradient-to-r from-blue-500 to-green-500 text-white py-4 rounded-xl font-bold text-lg hover:from-blue-600 hover:to-green-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl"
               >
                 {isSubmitting ? 'Agendando...' : 'Confirmar Agendamento'}

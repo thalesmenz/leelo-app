@@ -181,10 +181,10 @@ export default function MedicalRecordsTab() {
 
   if (loading) {
     return (
-      <div className="bg-white rounded-2xl border border-gray-100 p-8">
+      <div className="bg-white rounded-2xl border border-gray-100 p-4 sm:p-6 lg:p-8">
         <div className="flex items-center justify-center py-12">
           <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-          <span className="ml-3 text-gray-600">Carregando prontuários...</span>
+          <span className="ml-3 text-sm sm:text-base text-gray-600">Carregando prontuários...</span>
         </div>
       </div>
     );
@@ -192,45 +192,43 @@ export default function MedicalRecordsTab() {
 
   return (
     <>
-      <div className="bg-white rounded-2xl border border-gray-100 p-8">
+      <div className="bg-white rounded-2xl border border-gray-100 p-4 sm:p-6 lg:p-8">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-2 text-xl font-bold text-blue-600">
-            <FileText size={24} /> Prontuários Médicos
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4 sm:mb-6">
+          <div className="flex items-center gap-2 text-lg sm:text-xl font-bold text-blue-600">
+            <FileText size={20} className="sm:w-6 sm:h-6" /> Prontuários Médicos
           </div>
           <button
-            className="bg-gradient-to-r from-blue-500 to-green-400 hover:from-green-400 hover:to-blue-500 text-white px-4 py-2 rounded font-semibold flex items-center gap-2 shadow transition-colors"
+            className="w-full sm:w-auto bg-gradient-to-r from-blue-500 to-green-400 hover:from-green-400 hover:to-blue-500 text-white px-4 py-2 rounded font-semibold flex items-center justify-center gap-2 shadow transition-colors text-sm sm:text-base"
             onClick={handleCreateRecord}
           >
             <Plus size={18} /> Novo Prontuário
           </button>
         </div>
 
-    
-
         {/* Barra de Pesquisa */}
-        <div className="flex gap-2 mb-6">
-          <div className="flex-1 relative">
+        <div className="mb-4 sm:mb-6">
+          <div className="relative">
             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
               <MagnifyingGlass size={18} />
             </span>
             <input
               type="text"
-              placeholder="Buscar prontuários por paciente, CPF ou notas..."
+              placeholder="Buscar prontuários..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-              className="w-full border border-gray-200 rounded px-10 py-2 focus:outline-none focus:ring-2 focus:ring-blue-200 bg-white"
+              className="w-full border border-gray-200 rounded px-10 pr-20 sm:pr-10 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 bg-white"
             />
+            <button 
+              onClick={handleSearch}
+              disabled={searching}
+              className="absolute right-2 top-1/2 -translate-y-1/2 bg-blue-600 text-white px-3 py-1.5 rounded text-xs sm:text-sm flex items-center gap-1 hover:bg-blue-700 disabled:opacity-50"
+            >
+              <MagnifyingGlass size={16} className="sm:hidden" />
+              <span className="hidden sm:inline">{searching ? 'Buscando...' : 'Pesquisar'}</span>
+            </button>
           </div>
-          <button 
-            onClick={handleSearch}
-            disabled={searching}
-            className="bg-blue-600 text-white px-4 py-2 rounded flex items-center gap-2 hover:bg-blue-700 disabled:opacity-50"
-          >
-            <MagnifyingGlass size={18} />
-            {searching ? 'Buscando...' : 'Pesquisar'}
-          </button>
         </div>
 
         {/* Lista de Prontuários */}
@@ -246,23 +244,23 @@ export default function MedicalRecordsTab() {
             </p>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             {filteredRecords.map((record) => (
               <div key={record.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-3 mb-2">
-                      <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-green-400 rounded-full flex items-center justify-center text-white font-semibold">
+                      <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-green-400 rounded-full flex items-center justify-center text-white font-semibold shrink-0">
                         <User size={20} />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-gray-900 truncate">{record.patient_name}</h3>
-                        <p className="text-sm text-gray-500">CPF: {record.patient_cpf}</p>
+                        <h3 className="font-semibold text-sm sm:text-base text-gray-900 truncate">{record.patient_name}</h3>
+                        <p className="text-xs sm:text-sm text-gray-500">CPF: {record.patient_cpf}</p>
                       </div>
                     </div>
                     
                     <div className="mb-3">
-                      <p className="text-sm text-gray-700 line-clamp-2">
+                      <p className="text-xs sm:text-sm text-gray-700 line-clamp-2 sm:line-clamp-3">
                         {record.notes.length > 150 
                           ? `${record.notes.substring(0, 150)}...` 
                           : record.notes
@@ -270,7 +268,7 @@ export default function MedicalRecordsTab() {
                       </p>
                     </div>
                     
-                    <div className="flex items-center gap-4 text-xs text-gray-500">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-4 text-xs text-gray-500">
                       <span className="flex items-center gap-1">
                         <Calendar size={12} />
                         Criado em {formatDate(record.created_at)}
@@ -279,34 +277,37 @@ export default function MedicalRecordsTab() {
                         <Clock size={12} />
                         {formatTime(record.created_at)}
                       </span>
-                      <span className="flex items-center gap-1">
-                        <User size={12} />
-                        Profissional: {record.professional_name}
+                      <span className="flex items-center gap-1 truncate">
+                        <User size={12} className="shrink-0" />
+                        <span className="truncate">Profissional: {record.professional_name}</span>
                       </span>
                     </div>
                   </div>
                   
-                  <div className="flex gap-2">
+                  <div className="flex sm:flex-col gap-2 shrink-0 sm:pt-2">
                     <button
                       onClick={() => handleViewRecord(record)}
-                      className="px-3 py-1 border-2 border-blue-500 bg-blue-500 text-white rounded-lg hover:bg-blue-600 hover:border-blue-600 font-semibold text-xs transition-colors shadow-sm"
+                      className="flex-1 sm:flex-none px-3 py-2 sm:px-3 sm:py-1.5 border-2 border-blue-500 bg-blue-500 text-white rounded-lg hover:bg-blue-600 hover:border-blue-600 font-semibold text-xs transition-colors shadow-sm flex items-center justify-center gap-1.5"
                       title="Visualizar"
                     >
                       <Eye size={14} />
+                      <span className="sm:hidden">Ver</span>
                     </button>
                     <button
                       onClick={() => handleEditRecord(record)}
-                      className="px-3 py-1 border-2 border-green-500 bg-green-500 text-white rounded-lg hover:bg-green-600 hover:border-green-600 font-semibold text-xs transition-colors shadow-sm"
+                      className="flex-1 sm:flex-none px-3 py-2 sm:px-3 sm:py-1.5 border-2 border-green-500 bg-green-500 text-white rounded-lg hover:bg-green-600 hover:border-green-600 font-semibold text-xs transition-colors shadow-sm flex items-center justify-center gap-1.5"
                       title="Editar"
                     >
                       <PencilSimple size={14} />
+                      <span className="sm:hidden">Editar</span>
                     </button>
                     <button
                       onClick={() => handleDeleteRecord(record)}
-                      className="px-3 py-1 border-2 border-red-500 bg-red-500 text-white rounded-lg hover:bg-red-600 hover:border-red-600 font-semibold text-xs transition-colors shadow-sm"
+                      className="flex-1 sm:flex-none px-3 py-2 sm:px-3 sm:py-1.5 border-2 border-red-500 bg-red-500 text-white rounded-lg hover:bg-red-600 hover:border-red-600 font-semibold text-xs transition-colors shadow-sm flex items-center justify-center gap-1.5"
                       title="Excluir"
                     >
                       <Trash size={14} />
+                      <span className="sm:hidden">Excluir</span>
                     </button>
                   </div>
                 </div>

@@ -159,41 +159,41 @@ export default function DashboardPage() {
       
       {/* Seção de Boas-vindas para Novos Usuários */}
       {isNewUser && !loading && (
-        <section className="px-8 py-6">
-          <div className="bg-gradient-to-r from-blue-50 via-white to-green-50 rounded-2xl p-8 border border-gray-100">
-            <div className="flex items-center gap-4 mb-6">
-              <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-green-500 rounded-full flex items-center justify-center">
-                <Sparkle size={32} className="text-white" />
+        <section className="px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+          <div className="bg-gradient-to-r from-blue-50 via-white to-green-50 rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 border border-gray-100">
+            <div className="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
+              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-blue-500 to-green-500 rounded-full flex items-center justify-center shrink-0">
+                <Sparkle size={24} className="sm:w-8 sm:h-8 text-white" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-gray-900">
+                <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">
                   Bem-vindo, {user?.name || 'Usuário'}! 👋
                 </h1>
-                <p className="text-lg text-gray-600">
+                <p className="text-sm sm:text-base lg:text-lg text-gray-600">
                   Vamos começar a configurar sua clínica?
                 </p>
               </div>
             </div>
 
-            <div className="bg-white rounded-xl p-6 border border-gray-200">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <CheckCircle size={24} className="text-green-500" />
+            <div className="bg-white rounded-xl p-4 sm:p-6 border border-gray-200">
+              <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <CheckCircle size={20} className="sm:w-6 sm:h-6 text-green-500" />
                 Primeiros Passos
               </h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                 {welcomeSteps.map((step) => (
                   <Link
                     key={step.id}
                     href={step.href}
-                    className="group block p-4 rounded-lg border-2 border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-all duration-200"
+                    className="group block p-3 sm:p-4 rounded-lg border-2 border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-all duration-200"
                   >
-                    <div className={`w-12 h-12 rounded-lg bg-gradient-to-r ${step.color} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-200`}>
-                      <step.icon size={24} className="text-white" />
+                    <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-gradient-to-r ${step.color} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-200`}>
+                      <step.icon size={20} className="sm:w-6 sm:h-6 text-white" />
                     </div>
-                    <h3 className="font-semibold text-gray-900 mb-1">{step.title}</h3>
-                    <p className="text-sm text-gray-600 mb-3">{step.description}</p>
-                    <div className="flex items-center text-blue-600 font-medium text-sm group-hover:text-blue-700">
-                      Começar <ArrowRight size={16} className="ml-1 group-hover:translate-x-1 transition-transform" />
+                    <h3 className="font-semibold text-sm sm:text-base text-gray-900 mb-1">{step.title}</h3>
+                    <p className="text-xs sm:text-sm text-gray-600 mb-3">{step.description}</p>
+                    <div className="flex items-center text-blue-600 font-medium text-xs sm:text-sm group-hover:text-blue-700">
+                      Começar <ArrowRight size={14} className="sm:w-4 sm:h-4 ml-1 group-hover:translate-x-1 transition-transform" />
                     </div>
                   </Link>
                 ))}
@@ -204,7 +204,7 @@ export default function DashboardPage() {
       )}
 
       {/* Cards Resumo */}
-      <section className="grid grid-cols-1 md:grid-cols-4 gap-6 px-8 py-6">
+      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
         {loading ? (
           Array.from({ length: 4 }).map((_, idx) => (
             <div key={idx} className="bg-white rounded shadow p-5 h-28 animate-pulse" />
@@ -245,21 +245,21 @@ export default function DashboardPage() {
       </section>
 
       {/* Ações Rápidas */}
-      <section className="px-8 pb-6">
-        <div className="bg-white rounded shadow p-6">
-          <h3 className="text-xl font-bold mb-4">Ações Rápidas</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <section className="px-4 sm:px-6 lg:px-8 pb-4 sm:pb-6">
+        <div className="bg-white rounded shadow p-4 sm:p-6">
+          <h3 className="text-lg sm:text-xl font-bold mb-4">Ações Rápidas</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             {quickActions.map((action) => (
               <Link
                 key={action.title}
                 href={action.href}
-                className="group block p-4 rounded-xl border border-gray-200 hover:border-gray-300 hover:shadow-md transition-all duration-200"
+                className="group block p-3 sm:p-4 rounded-xl border border-gray-200 hover:border-gray-300 hover:shadow-md transition-all duration-200"
               >
-                <div className={`w-12 h-12 ${action.color} rounded-lg flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-200`}>
-                  <action.icon size={24} className="text-white" />
+                <div className={`w-10 h-10 sm:w-12 sm:h-12 ${action.color} rounded-lg flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-200`}>
+                  <action.icon size={20} className="sm:w-6 sm:h-6 text-white" />
                 </div>
-                <h3 className="font-semibold text-gray-900 mb-1">{action.title}</h3>
-                <p className="text-sm text-gray-600">{action.description}</p>
+                <h3 className="font-semibold text-sm sm:text-base text-gray-900 mb-1">{action.title}</h3>
+                <p className="text-xs sm:text-sm text-gray-600">{action.description}</p>
               </Link>
             ))}
           </div>
@@ -267,13 +267,13 @@ export default function DashboardPage() {
       </section>
 
       {/* Agenda de Hoje */}
-      <main className="flex-1 px-8 pb-8">
-        <section className="lg:col-span-2 bg-white rounded shadow p-6 flex flex-col">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-bold">Agenda de Hoje</h3>
+      <main className="flex-1 px-4 sm:px-6 lg:px-8 pb-4 sm:pb-6 lg:pb-8">
+        <section className="lg:col-span-2 bg-white rounded shadow p-4 sm:p-6 flex flex-col">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 mb-4">
+            <h3 className="text-lg sm:text-xl font-bold">Agenda de Hoje</h3>
             <button 
               onClick={handleViewFullAgenda}
-              className="border border-gray-300 rounded px-3 py-1 text-sm font-medium hover:bg-gray-100 transition-colors"
+              className="w-full sm:w-auto border border-gray-300 rounded px-3 py-2 text-sm font-medium hover:bg-gray-100 transition-colors"
             >
               Ver Agenda Completa
             </button>
@@ -285,19 +285,19 @@ export default function DashboardPage() {
               <li className="text-gray-500 text-center py-4">Nenhum agendamento para hoje.</li>
             ) : (
               todaySchedule.map((item, idx) => (
-                <li key={idx} className={`flex items-center justify-between rounded p-3 ${
+                <li key={idx} className={`flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 rounded p-3 ${
                   item.status === 'completed' ? 'bg-green-50 border border-green-200' : 'bg-gray-50'
                 }`}>
-                  <div className="flex items-center gap-4">
-                    <div className="text-lg font-bold text-gray-700 w-16">{item.time}</div>
-                    <div className="text-xs text-gray-400">{item.duration}</div>
-                    <div>
-                      <div className="font-semibold text-gray-900">{item.name}</div>
-                      <div className="text-xs text-gray-500">{item.type}</div>
+                  <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
+                    <div className="text-base sm:text-lg font-bold text-gray-700 w-14 sm:w-16 shrink-0">{item.time}</div>
+                    <div className="text-xs text-gray-400 shrink-0">{item.duration}</div>
+                    <div className="min-w-0 flex-1">
+                      <div className="font-semibold text-sm sm:text-base text-gray-900 truncate">{item.name}</div>
+                      <div className="text-xs text-gray-500 truncate">{item.type}</div>
                       <div className="text-xs text-gray-400">{item.location}</div>
                     </div>
                   </div>
-                  <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                  <span className={`px-3 py-1 rounded-full text-xs font-semibold shrink-0 ${
                     item.status === 'confirmed' ? 'bg-green-100 text-green-700' : 
                     item.status === 'completed' ? 'bg-blue-100 text-blue-700' : 
                     'bg-yellow-100 text-yellow-700'
@@ -314,20 +314,21 @@ export default function DashboardPage() {
       </main>
 
       {/* Gráfico de Desempenho Financeiro */}
-      <section className="bg-white rounded shadow p-6 mt-8 mx-8">
-        <h3 className="text-xl font-bold mb-4">Desempenho Financeiro</h3>
-        <div className="w-full">
+      <section className="bg-white rounded shadow p-4 sm:p-6 mt-4 sm:mt-6 lg:mt-8 mx-4 sm:mx-6 lg:mx-8 mb-4 sm:mb-6 lg:mb-8">
+        <h3 className="text-lg sm:text-xl font-bold mb-4">Desempenho Financeiro</h3>
+        <div className="w-full overflow-x-auto">
           {loading ? (
-            <div className="h-80 flex items-center justify-center">
-              <div className="text-gray-500">Carregando dados do gráfico...</div>
+            <div className="h-64 sm:h-80 flex items-center justify-center">
+              <div className="text-sm sm:text-base text-gray-500">Carregando dados do gráfico...</div>
             </div>
           ) : financialData.length === 0 ? (
-            <div className="h-80 flex items-center justify-center">
-              <div className="text-gray-500">Nenhum dado financeiro disponível</div>
+            <div className="h-64 sm:h-80 flex items-center justify-center">
+              <div className="text-sm sm:text-base text-gray-500">Nenhum dado financeiro disponível</div>
             </div>
           ) : (
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={financialData}>
+            <div className="w-full" style={{ minHeight: '250px' }}>
+              <ResponsiveContainer width="100%" height={250}>
+                <LineChart data={financialData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="month" />
                 <YAxis />
@@ -337,6 +338,7 @@ export default function DashboardPage() {
                 <Line type="monotone" dataKey="expenses" stroke="#ef4444" strokeWidth={2} name="Despesas" />
               </LineChart>
             </ResponsiveContainer>
+            </div>
           )}
         </div>
       </section>
